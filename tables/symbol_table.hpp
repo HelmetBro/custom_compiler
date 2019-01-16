@@ -17,7 +17,7 @@ enum SYMBOL {
     ASSIGN, SEMI, COMMA, PERIOD// <- ; , .
     };
 
-std::unordered_map<std::string, SYMBOL> symbol_table ({
+static std::unordered_map<std::string, int> symbol_table ({
                                                                 {"==", E},
                                                                 {"!=", NE},
                                                                 {"<", LT},

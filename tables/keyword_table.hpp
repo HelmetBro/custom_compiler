@@ -10,7 +10,7 @@
 
 enum KEYWORD {MAIN, LET, CALL, RETURN, IF, FI, THEN, ELSE, WHILE, DO, OD, VAR, ARRAY, FUNCTION, PROCEDURE};
 
-std::unordered_map<std::string, KEYWORD> keyword_table ({
+static std::unordered_map<std::string, int> keyword_table ({
                                                                 {"main", MAIN},
                                                                 {"let", LET},
                                                                 {"call", CALL},
