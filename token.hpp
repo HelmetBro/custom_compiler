@@ -15,6 +15,8 @@ struct token{
     int value; //only if it's a value
     int keyword; //only if it's a keyword
     int symbol; //only if it's a value
+
+
 };
 
 #endif
