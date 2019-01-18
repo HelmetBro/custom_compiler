@@ -7,7 +7,7 @@
 
 #include <string>
 
-#include "TYPE.hpp"
+enum TYPE {NUMBER, IDENTIFIER, KEYWORD, SYMBOL};
 
 struct token{
     std::string input;
@@ -15,8 +15,6 @@ struct token{
     int value; //only if it's a value
     int keyword; //only if it's a keyword
     int symbol; //only if it's a value
-
-
 };
 
 #endif

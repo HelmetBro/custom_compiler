@@ -2,11 +2,10 @@
 // Created by EricP on 1/15/2019.
 //
 
-#ifndef KEYWORD_TABLE_H
-#define KEYWORD_TABLE_H
-
 #include <unordered_map>
 #include <string>
+
+#include "../token.hpp"
 
 enum KEYWORD {MAIN, LET, CALL, RETURN, IF, FI, THEN, ELSE, WHILE, DO, OD, VAR, ARRAY, FUNCTION, PROCEDURE};
 
@@ -28,4 +27,7 @@ static std::unordered_map<std::string, int> keyword_table ({
                                                                 {"procedure", PROCEDURE}
 });
 
-#endif
+static bool is_keyword(token value){
+    std::unordered_map<std::string, int>::const_iterator has = keyword_table.find(value.input);
+    return has != keyword_table.end();
+}

@@ -2,11 +2,10 @@
 // Created by EricP on 1/15/2019.
 //
 
-#ifndef SYMBOL_TABLE_H
-#define SYMBOL_TABLE_H
-
 #include <unordered_map>
 #include <string>
+
+#include "../token.hpp"
 
 enum SYMBOL {
     E, NE, LT, LTE, GT, GTE, //relOp
@@ -43,4 +42,7 @@ static std::unordered_map<std::string, int> symbol_table ({
                                                                 {".", PERIOD},
                                                         });
 
-#endif
+static bool is_symbol(token value){
+    std::unordered_map<std::string, int>::const_iterator has = symbol_table.find(value.input);
+    return has != symbol_table.end();
+}
