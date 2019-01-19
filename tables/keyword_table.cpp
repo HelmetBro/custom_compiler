@@ -31,3 +31,8 @@ static bool is_keyword(token value){
     std::unordered_map<std::string, int>::const_iterator has = keyword_table.find(value.input);
     return has != keyword_table.end();
 }
+
+static bool is_keyword(const std::string & value){
+    std::unordered_map<std::string, int>::const_iterator has = keyword_table.find(value);
+    return has != keyword_table.end();
+}

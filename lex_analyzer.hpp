@@ -28,8 +28,12 @@ private:
     //scoped enum to reduce conflicts
     enum class FSM_STATE {START, SYMBOL, NUMBER, KEYWORD, IDENTIFIER, POS_SYN_ERR, NEW_TOKEN, SYNTAX_ERR};
 
-    char get_char(){
-        return input_sentence[index++];
+    char next_char(){
+        return input_sentence[++index];
+    }
+
+    char this_char(){
+        return input_sentence[index];
     }
 
     void add_char_token(char next){
@@ -39,8 +43,10 @@ private:
     FSM_STATE start(char next){
 
         //whitespace
-        if(isspace(next))
+        if(isspace(next)){
+            next_char();
             return FSM_STATE::START;
+        }
 
         add_char_token(next);
 
@@ -57,19 +63,16 @@ private:
         }
 
         //symbol
-        if(is_symbol(tok))
-            return FSM_STATE::SYMBOL;
-
-        return FSM_STATE::POS_SYN_ERR;
+        return FSM_STATE::SYMBOL;
     }
 
     FSM_STATE number(char next){
 
-        add_char_token(next);
-
         //digit
-        if(isdigit(next))
+        if(isdigit(next)){
+            add_char_token(next);
             return FSM_STATE::NUMBER;
+        }
 
         //letter
         if(isalpha(next))
@@ -80,70 +83,126 @@ private:
         return FSM_STATE::NEW_TOKEN;
     }
 
-    FSM_STATE keyword(char next){
+//    FSM_STATE keyword(char next){
+//
+//        //matching keyword
+//        if(is_keyword(tok.input + next)){
+//            add_char_token(next);
+//            return FSM_STATE::KEYWORD;
+//        }
+//
+//        //not a keyword, but is a letter
+//        if(isalpha(next)){
+//            add_char_token(next);
+//            return FSM_STATE::IDENTIFIER;
+//        }
+//
+//        tok.type = KEYWORD;
+//        return FSM_STATE::NEW_TOKEN;
+//    }
+//
+//    FSM_STATE identifier(char next){
+//
+//        //matching keyword
+//        if(is_keyword(tok.input + next)){
+//            add_char_token(next);
+//            return FSM_STATE::KEYWORD;
+//        }
+//
+//        //not a keyword, but is a letter
+//        if(isalpha(next)){
+//            add_char_token(next);
+//            return FSM_STATE::IDENTIFIER;
+//        }
+//
+//        tok.type = IDENTIFIER;
+//        return FSM_STATE::NEW_TOKEN;
+//    }
 
-        add_char_token(next);
+    FSM_STATE keyident(char next, FSM_STATE switch_state){
 
         //matching keyword
-        if(is_keyword(tok))
+        if(is_keyword(tok.input + next)){
+            add_char_token(next);
             return FSM_STATE::KEYWORD;
+        }
 
         //not a keyword, but is a letter
-        if(isalpha(next))
+        if(isalpha(next)){
+            add_char_token(next);
             return FSM_STATE::IDENTIFIER;
+        }
 
-        tok.type = KEYWORD;
+        tok.type = switch_state == FSM_STATE::KEYWORD ? KEYWORD : IDENTIFIER;
         return FSM_STATE::NEW_TOKEN;
     }
 
-    FSM_STATE identifier(char next){
+//    std::string symbol(char next, std::string input, std::string sentence, unsigned long index){
+//
+//        std::string sub_tok = input;
+//
+//        //matching symbol
+//        if(is_symbol(input + next)){
+//            input += next;
+//            index++;
+//            return symbol(sentence[index], input, sentence, index);
+//        }
+//
+//        //not a symbol in the table, but its a valid symbol character
+//        if(ispunct(next)){
+//            input += next;
+//            index++;
+//            std::string inner = pos_syn_err(sentence[index], input, sentence, index);
+//            if(inner.length() > sub_tok.length())
+//                sub_tok = inner;
+//        }
+//
+//        return sub_tok;
+//    }
+//
+//    std::string pos_syn_err(char next, std::string input, std::string sentence, unsigned long index) {
+//
+//        std::string sub_tok = input;
+//
+//        if(is_symbol(input + next)){
+//            input += next;
+//            index++;
+//            return symbol(sentence[index], input, sentence, index);
+//        }
+//
+//        if(ispunct(next)){
+//            input += next;
+//            index++;
+//            std::string inner = pos_syn_err(sentence[index], input, sentence, index);
+//            if(inner.length() > sub_tok.length())
+//                sub_tok = inner;
+//        }
+//
+//        return "";
+//    }
 
-        add_char_token(next);
+    std::string symbol(char next, std::string input, std::string sentence, unsigned long index, FSM_STATE recursive_state) {
 
-        //matching keyword
-        if(is_keyword(tok))
-            return FSM_STATE::KEYWORD;
+        std::string sub_tok = input;
 
-        //not a keyword, but is a letter
-        if(isalpha(next))
-            return FSM_STATE::IDENTIFIER;
+        if(is_symbol(input + next)){
+            input += next;
+            index++;
+            return symbol(sentence[index], input, sentence, index, FSM_STATE::SYMBOL);
+        }
 
-        tok.type = IDENTIFIER;
-        return FSM_STATE::NEW_TOKEN;
+        if(ispunct(next)){
+            input += next;
+            index++;
+            std::string inner = symbol(sentence[index], input, sentence, index, FSM_STATE::POS_SYN_ERR);
+            if(inner.length() > sub_tok.length())
+                sub_tok = inner;
+        }
+
+        return recursive_state == FSM_STATE::SYMBOL ? sub_tok : "";
     }
 
-    FSM_STATE symbol(char next){
-
-        add_char_token(next);
-
-        //matching symbol
-        if(is_symbol(tok))
-            return FSM_STATE::SYMBOL;
-
-        //not a symbol, but its a valid symbol character
-        if(ispunct(next))
-            return FSM_STATE::POS_SYN_ERR;
-
-        tok.type = SYMBOL;
-        return FSM_STATE::NEW_TOKEN;
-    }
-
-    FSM_STATE pos_syn_err(char next) {
-
-        add_char_token(next);
-
-        //matching symbol
-        if(is_symbol(tok))
-            return FSM_STATE::SYMBOL;
-
-        //not a symbol, but its a valid symbol character
-        if(ispunct(next))
-            return FSM_STATE::POS_SYN_ERR;
-
-        return FSM_STATE::SYNTAX_ERR;
-    }
-
-    void finalize_token(){
+    FSM_STATE finalize_token(){
 
         switch (tok.type){
             case NUMBER: tok.value = stoi(tok.input); break;
@@ -151,6 +210,11 @@ private:
             case SYMBOL: tok.symbol = symbol_table[tok.input]; break;
         }
 
+        //add token to list and make a new one for next use
+        tokens.push_back(this->tok);
+        tok = token();
+
+        return FSM_STATE::START;
     }
 
 
@@ -159,25 +223,43 @@ public:
     //takes sentence and gives tokens using FSM
     std::vector<token> analyze(std::string const & input_sentence, unsigned long line_num){
 
-        this->input_sentence = input_sentence;
+        this->input_sentence = (input_sentence + ' ');
         this->index = 0;
         this->tokens.clear();
 
         FSM_STATE token_state = FSM_STATE::START;
 
-        unsigned long sentence_length = input_sentence.length();
+        unsigned long sentence_length = this->input_sentence.length();
         while(index != sentence_length){
 
+            //only grab another if im still processing
+            char next = (token_state == FSM_STATE::START || token_state == FSM_STATE::NEW_TOKEN) ? this_char() : next_char();
+
             switch(token_state){
-                case FSM_STATE::START: token_state = start(get_char()); break;
-                case FSM_STATE::NUMBER: token_state = number(get_char()); break;
-                case FSM_STATE::KEYWORD: token_state = keyword(get_char()); break;
-                case FSM_STATE::IDENTIFIER: identifier(get_char()); break;
-                case FSM_STATE::SYMBOL: token_state = symbol(get_char()); break;
-                case FSM_STATE::POS_SYN_ERR: token_state = pos_syn_err(get_char()); break;
-                case FSM_STATE::NEW_TOKEN: finalize_token(); tokens.push_back(this->tok); break;
+                case FSM_STATE::START: token_state = start(next); break;
+                case FSM_STATE::NUMBER: token_state = number(next); break;
+                case FSM_STATE::KEYWORD: token_state = keyident(next, token_state); break;
+                case FSM_STATE::IDENTIFIER: token_state = keyident(next, token_state); break;
+
+                case FSM_STATE::SYMBOL:
+
+                {
+                    std::string temp_token = symbol(next, tok.input, this->input_sentence, this->index, token_state);
+                    if(is_symbol(temp_token)){
+                        tok.input = temp_token;
+                        this->index += temp_token.length() - 1;
+                        tok.type = SYMBOL;
+                        token_state = FSM_STATE::NEW_TOKEN;
+                    } else {
+                        token_state = FSM_STATE::SYNTAX_ERR;
+                    }
+                }
+
+                    break;
+
+                case FSM_STATE::NEW_TOKEN: token_state = finalize_token(); break;
                 default:
-                    throw syntax_error(line_num, index, input_sentence);
+                    throw syntax_error(line_num, index, input_sentence, tok.input.length() - 1);
             }
         }
 

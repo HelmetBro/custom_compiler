@@ -13,7 +13,8 @@ enum SYMBOL {
     L_PAREN, R_PAREN, //()
     L_BRACE, R_BRACE, //[]
     L_BRACK, R_BRACK, //{}
-    ASSIGN, SEMI, COMMA, PERIOD// <- ; , .
+    ASSIGN, SEMI, COMMA, PERIOD, // <- ; , .
+    COMMENT1, COMMENT2 // // or #
     };
 
 static std::unordered_map<std::string, int> symbol_table ({
@@ -40,9 +41,17 @@ static std::unordered_map<std::string, int> symbol_table ({
                                                                 {";", SEMI},
                                                                 {",", COMMA},
                                                                 {".", PERIOD},
+
+                                                                {"//", COMMENT1},
+                                                                {"#", COMMENT2}
                                                         });
 
 static bool is_symbol(token value){
     std::unordered_map<std::string, int>::const_iterator has = symbol_table.find(value.input);
+    return has != symbol_table.end();
+}
+
+static bool is_symbol(const std::string & value){
+    std::unordered_map<std::string, int>::const_iterator has = symbol_table.find(value);
     return has != symbol_table.end();
 }
