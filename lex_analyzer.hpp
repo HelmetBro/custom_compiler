@@ -26,7 +26,7 @@ class lex_analyzer{
 private:
 
     //scoped enum to reduce conflicts
-    enum class FSM_STATE {START, SYMBOL, NUMBER, KEYWORD, IDENTIFIER, POS_SYN_ERR, NEW_TOKEN, SYNTAX_ERR};
+    enum class FSM_STATE {START, SYMBOL, NUMBER, KEYWORD, IDENTIFIER, POS_SYN_ERR, NEW_TOKEN, SYNTAX_ERR, END};
 
     char next_char(){
         return input_sentence[++index];
@@ -217,6 +217,22 @@ private:
         return FSM_STATE::START;
     }
 
+    FSM_STATE finalize_symbol(const std::string & temp_token){
+
+        if(is_symbol(temp_token)){
+
+            //check if comment character. if so, skip and return (-1 for indexing)
+            if(symbol_table[temp_token] > symbol_table.size() - NUM_COMMENT_SYMBOLS - 1)
+                return FSM_STATE::END;
+
+            tok.input = temp_token;
+            this->index += temp_token.length() - 1;
+            tok.type = SYMBOL;
+            return FSM_STATE::NEW_TOKEN;
+        }
+
+        return FSM_STATE::SYNTAX_ERR;
+    }
 
 public:
 
@@ -240,24 +256,10 @@ public:
                 case FSM_STATE::NUMBER: token_state = number(next); break;
                 case FSM_STATE::KEYWORD: token_state = keyident(next, token_state); break;
                 case FSM_STATE::IDENTIFIER: token_state = keyident(next, token_state); break;
-
                 case FSM_STATE::SYMBOL:
-
-                {
-                    std::string temp_token = symbol(next, tok.input, this->input_sentence, this->index, token_state);
-                    if(is_symbol(temp_token)){
-                        tok.input = temp_token;
-                        this->index += temp_token.length() - 1;
-                        tok.type = SYMBOL;
-                        token_state = FSM_STATE::NEW_TOKEN;
-                    } else {
-                        token_state = FSM_STATE::SYNTAX_ERR;
-                    }
-                }
-
-                    break;
-
+                    token_state = finalize_symbol(symbol(next, tok.input, this->input_sentence, this->index, token_state)); break;
                 case FSM_STATE::NEW_TOKEN: token_state = finalize_token(); break;
+                case FSM_STATE::END: return this->tokens;
                 default:
                     throw syntax_error(line_num, index, input_sentence, tok.input.length() - 1);
             }

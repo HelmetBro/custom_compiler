@@ -19,20 +19,20 @@ struct token{
 
 public:
 
-    /* Only need to clear input because type gets overridden on every pass, other values don't matter
-     * because the type depends on its access. */
-    void clear(){
-        this->input = "";
-    }
+//    /* Only need to clear input because type gets overridden on every pass, other values don't matter
+//     * because the type depends on its access. */
+//    void clear(){
+//        this->input = "";
+//    }
 
     std::string to_string(){
         std::string result = "";
-        result += "token{" + input + "}[";
+        result += "{" + input + "}[";
 
         switch (type){
-            case NUMBER: result += "value: '"; result += std::to_string(this->value); result += '\''; break;
-            case KEYWORD: result += "keyword: '"; result += std::to_string(this->keyword); result += '\''; break;
-            case IDENTIFIER: result += "identifier: '"; result += this->input; result += '\''; break;
+            case NUMBER: result += "value:'"; result += std::to_string(this->value); result += '\''; break;
+            case KEYWORD: result += "keyword:'"; result += std::to_string(this->keyword); result += '\''; break;
+            case IDENTIFIER: result += "identifier:'"; result += this->input; result += '\''; break;
             case SYMBOL: result += "symbol:'"; result += std::to_string(this->symbol); result += '\''; break;
         }
 

@@ -17,6 +17,8 @@ enum SYMBOL {
     COMMENT1, COMMENT2 // // or #
     };
 
+static unsigned int NUM_COMMENT_SYMBOLS = 2;
+
 static std::unordered_map<std::string, int> symbol_table ({
                                                                 {"==", E},
                                                                 {"!=", NE},
@@ -42,6 +44,7 @@ static std::unordered_map<std::string, int> symbol_table ({
                                                                 {",", COMMA},
                                                                 {".", PERIOD},
 
+                                                                //add comment symbols past this line.
                                                                 {"//", COMMENT1},
                                                                 {"#", COMMENT2}
                                                         });

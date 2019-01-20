@@ -16,18 +16,25 @@ static void print_token_vector(std::vector<token> path){
 
 int main() {
 
-    std::ifstream infile;
-    infile.open("../test_programs/test001.txt");
+    for(int i = 24; i < 32; i++){
+        std::ifstream infile;
+        std::string file = "../test_programs/test0";
+        file += std::to_string(i);
+        file += ".txt";
+        infile.open(file);
 
-    std::string line;
-    unsigned long count = 0;
-    while(std::getline(infile, line)){
+        std::string line;
+        unsigned long count = 0;
+        while(std::getline(infile, line)){
 
-        lex_analyzer tokenizer;
-        try{
-            print_token_vector(tokenizer.analyze(line, ++count));
-        } catch (syntax_error & s){
-            std::cerr << s.what();
+            lex_analyzer tokenizer;
+            try{
+                print_token_vector(tokenizer.analyze(line, ++count));
+            } catch (syntax_error & s){
+                std::cerr << s.what();
+                exit(-1);
+            }
+
         }
 
     }
