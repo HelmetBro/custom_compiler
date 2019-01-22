@@ -256,8 +256,7 @@ public:
                 case FSM_STATE::NUMBER: token_state = number(next); break;
                 case FSM_STATE::KEYWORD: token_state = keyident(next, token_state); break;
                 case FSM_STATE::IDENTIFIER: token_state = keyident(next, token_state); break;
-                case FSM_STATE::SYMBOL:
-                    token_state = finalize_symbol(symbol(next, tok.input, this->input_sentence, this->index, token_state)); break;
+                case FSM_STATE::SYMBOL: token_state = finalize_symbol(symbol(next, tok.input, this->input_sentence, this->index, token_state)); break;
                 case FSM_STATE::NEW_TOKEN: token_state = finalize_token(); break;
                 case FSM_STATE::END: return this->tokens;
                 default:
