@@ -10,7 +10,7 @@
 
 #include "block.hpp"
 #include "body_block.hpp"
-#include "variable_block.hpp"
+#include "identifier_block.hpp"
 
 /* FUNCTION BLOCK */
 class function_block : protected block{
@@ -18,8 +18,8 @@ class function_block : protected block{
 private:
 
     std::string name;
-    std::vector<variable_block * > parameters;
-    std::vector<variable_block * > variables; //variables used in the function (local)
+    std::vector<identifier_block * > parameters;
+    std::vector<identifier_block * > variables; //variables used in the function (local)
     body_block * body;
 
 };

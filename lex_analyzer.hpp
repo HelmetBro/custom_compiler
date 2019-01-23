@@ -10,8 +10,8 @@
 
 #include "token.hpp"
 #include "syntax_error_exception.hpp"
-#include "tables/keyword_table.cpp"
-#include "tables/symbol_table.cpp"
+#include "tables/keyword_table.hpp"
+#include "tables/symbol_table.hpp"
 
 /** Lexical analyzer to take input from stdin and return a vector of symbols. */
 class lex_analyzer{

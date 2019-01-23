@@ -10,7 +10,7 @@
 #include "block.hpp"
 
 /* ABSTRACTION */
-class variable_block : block{
+class identifier_block : block{
     std::string identifier;
     int value;
 };

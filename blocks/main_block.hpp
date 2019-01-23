@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "block.hpp"
-#include "variable_block.hpp"
+#include "identifier_block.hpp"
 #include "function_block.hpp"
 #include "body_block.hpp"
 
@@ -17,9 +17,9 @@ class main_block : block{
 
 private:
 
-    std::vector<variable_block * > variables;
+    std::vector<identifier_block * > variables;
     std::vector<function_block * > function;
-    std::vector<body_block * > statements;
+    body_block * body;
 
 };
 

@@ -18,8 +18,6 @@ class block{
 protected:
 
     BLOCK_TYPE type; //type of specific block
-    token tok; //token that warranted the creation
-
 };
 
 #endif

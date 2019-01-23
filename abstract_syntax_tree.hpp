@@ -6,44 +6,22 @@
 #define AST_H_
 
 #include "token.hpp"
+#include "blocks/main_block.hpp"
+
+#include <vector>
 
 class absyntree{
 
-    //    template <typename T> class block;
-//    template<>
-//    class block<BLOCK_TYPE>{
-//
-//    };
+private:
 
-//    /* FUNCTION BLOCK */
-//    class function_block : protected block{
-//
-//    private:
-//
-//
-//
-//    public:
-//
-//        function_block(){
-//            this->type = BLOCK_TYPE::FUNCTION;
-//        }
-//
-//    };
-//
-//    /* PARAMETERS BLOCK */
-//    class parameters_block : protected block{
-//
-//    private:
-//
-//
-//
-//    public:
-//
-//        parameters_block(){
-//            this->type = BLOCK_TYPE::PARAMETERS;
-//        }
-//
-//    };
+    main_block * main = new main_block();
+
+public:
+
+    void analyze_sentence(){
+
+    }
+
 
 };
 
