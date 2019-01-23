@@ -5,24 +5,45 @@
 #ifndef AST_H_
 #define AST_H_
 
+#include "token.hpp"
+
 class absyntree{
 
-    enum class BLOCK_TYPE {FUNCTION, PARAMETERS, RETURN, BODY,
-            WHILE, IF, ELSE, CONDITION,
-            ASSIGNMENT, EXPRESSION,
-            CONSTANT, VARIABLE};
-
-//    template <typename T> class block;
+    //    template <typename T> class block;
 //    template<>
 //    class block<BLOCK_TYPE>{
 //
 //    };
 
-    class block{
-        BLOCK_TYPE type;
-    };
-
-
+//    /* FUNCTION BLOCK */
+//    class function_block : protected block{
+//
+//    private:
+//
+//
+//
+//    public:
+//
+//        function_block(){
+//            this->type = BLOCK_TYPE::FUNCTION;
+//        }
+//
+//    };
+//
+//    /* PARAMETERS BLOCK */
+//    class parameters_block : protected block{
+//
+//    private:
+//
+//
+//
+//    public:
+//
+//        parameters_block(){
+//            this->type = BLOCK_TYPE::PARAMETERS;
+//        }
+//
+//    };
 
 };
 
