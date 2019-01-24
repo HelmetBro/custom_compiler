@@ -12,7 +12,7 @@
 class while_statement : statement {
 
     relation * condition;
-    body_block * true_body; //if condition is true
+    body_block * true_body;
 
 };
 

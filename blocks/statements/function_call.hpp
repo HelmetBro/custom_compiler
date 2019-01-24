@@ -5,18 +5,16 @@
 #ifndef FUNCTION_CALL_H_
 #define FUNCTION_CALL_H_
 
-#include "statement.hpp"
-#include "expressions/expression.hpp"
-#include "../identifier_block.hpp"
-#include "../function_block.hpp"
-
 #include <vector>
+#include <string>
+
+#include "statement.hpp"
+#include "rela_pressions/expression.hpp"
 
 class function_call : statement{
 
-    identifier_block * ident; //name of function
-    std::vector<expression> arguments;
-    function_block func_block;
+    std::string name;
+    std::vector<expression * > arguments; //optional
 
 };
 

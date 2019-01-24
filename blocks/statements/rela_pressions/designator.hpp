@@ -5,14 +5,17 @@
 #ifndef DESIGNATOR_H_
 #define DESIGNATOR_H_
 
-#include "../../identifier_block.hpp"
-#include "../statement.hpp"
+#include <string>
+#include <vector>
+
 #include "expression.hpp"
 
 class designator {
 
-    identifier_block * identifier;
-    expression * exp;
+    std::string ident;
+
+    //optional
+    std::vector<expression *> exp;
 
 };
 

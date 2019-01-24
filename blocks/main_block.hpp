@@ -6,29 +6,25 @@
 #define MAIN_BLOCK_H_
 
 #include "block.hpp"
-#include "identifier_block.hpp"
+#include "var_dec_block.hpp"
 #include "function_block.hpp"
 #include "body_block.hpp"
-#include "../abstract_syntax_tree.hpp"
-#include "../temp.hpp"
+//#include "../abstract_syntax_tree.hpp"
 
-/* ABSTRACTION */
-class main_block : public block{
+class main_block : public block {
 
 private:
 
-    std::vector<identifier_block * > variables;
-    std::vector<function_block * > function;
-    body_block * body;
+    std::vector<var_dec_block *> variables;
+    std::vector<function_block *> functions;
+    std::vector<body_block *> body; //"main" function
 
 public:
 
-    explicit main_block(std::queue<token> sentence){
-
-        token first_token = sentence.front(); sentence.pop();
-        block * var_block = construct_block(sentence);
-
-    }
+//    explicit main_block(std::queue<token> sentence){
+//        token first_token = sentence.front(); sentence.pop();
+//        block * var_block = absyntree::construct_block(sentence);
+//    }
 
 };
 

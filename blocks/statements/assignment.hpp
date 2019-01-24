@@ -5,15 +5,13 @@
 #ifndef ASSIGNMENT_H_
 #define ASSIGNMENT_H_
 
-#include <vector>
-
 #include "statement.hpp"
-#include "expressions/expression.hpp"
-#include "expressions/designator.hpp"
+#include "rela_pressions/designator.hpp"
+#include "rela_pressions/expression.hpp"
 
 class assignment : statement{
 
-    designator * designator;
+    designator * des;
     expression * exp;
 
 };

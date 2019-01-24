@@ -10,9 +10,9 @@
 
 class relation{
 
-    expression * right_expression;
-    enum SYMBOL relOp;
     expression * left_expression;
+    enum SYMBOL relOp;
+    expression * right_expression;
 
 };
 

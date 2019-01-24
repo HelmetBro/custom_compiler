@@ -9,7 +9,10 @@
 #include "rela_pressions/expression.hpp"
 
 class return_statement : statement{
-    expression exp;
+
+    //optional
+    expression * exp;
+
 };
 
 #endif

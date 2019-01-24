@@ -6,6 +6,7 @@
 #include <string>
 
 #include "../token.hpp"
+#pragma once
 
 enum SYMBOL {
     E, NE, LT, LTE, GT, GTE, //relOp

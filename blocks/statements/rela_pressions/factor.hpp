@@ -5,13 +5,17 @@
 #ifndef FACTOR_H_
 #define FACTOR_H_
 
-#include "../../identifier_block.hpp"
-#include "../../constant_block.hpp"
+#include "designator.hpp"
+#include "expression.hpp"
+#include "../function_call.hpp"
 
 class factor{
 
-    identifier_block * designator;
-    identifier_block * constant;
+    //only one may be assigned
+    designator * des;
+    int number;
+    expression * exp;
+    function_call * func_call;
 
 };
 

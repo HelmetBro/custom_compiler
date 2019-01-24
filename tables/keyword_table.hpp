@@ -6,6 +6,7 @@
 #include <string>
 
 #include "../token.hpp"
+#pragma once
 
 enum KEYWORD {MAIN, LET, CALL, RETURN, IF, FI, THEN, ELSE, WHILE, DO, OD, VAR, ARRAY, FUNCTION, PROCEDURE};
 

@@ -5,22 +5,17 @@
 #ifndef FUNCTION_BLOCK_H_
 #define FUNCTION_BLOCK_H_
 
-#include <string>
-#include <vector>
-
 #include "block.hpp"
+#include "var_dec_block.hpp"
 #include "body_block.hpp"
-#include "identifier_block.hpp"
 
 /* FUNCTION BLOCK */
 class function_block : protected block{
 
-private:
-
     std::string name;
-    std::vector<identifier_block * > parameters;
-    std::vector<identifier_block * > variables; //variables used in the function (local)
-    body_block * body;
+    std::vector<std::string> parameters; //optional
+    std::vector<var_dec_block *> variables;
+    body_block * body; //optional
 
 };
 

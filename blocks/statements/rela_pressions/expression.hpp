@@ -7,13 +7,16 @@
 
 #include <vector>
 
-#include "../statement.hpp"
-#include "../../../token.hpp"
+#include "term.hpp"
+#include "../../../tables/symbol_table.hpp"
 
 class expression {
 
-    //later, make expression into a subtree
-    std::vector<token> expression_tokens;
+    term * initial_term;
+
+    //optional
+    enum SYMBOL plus_minus;
+    std::vector<term *> optional_terms;
 
 };
 
