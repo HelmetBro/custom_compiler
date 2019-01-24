@@ -11,4 +11,4 @@ add_executable(241Compiler main.cpp token.hpp lex_analyzer.hpp tables/symbol_tab
         blocks/statements/rela_pressions/factor.hpp blocks/statements/rela_pressions/expression.hpp
         blocks/statements/rela_pressions/designator.hpp blocks/statements/function_call.hpp
         blocks/statements/if_statement.hpp blocks/statements/rela_pressions/relation.hpp
-        blocks/statements/while_statement.hpp blocks/statements/return_statement.hpp blocks/statements/statement.hpp)
+        blocks/statements/while_statement.hpp blocks/statements/return_statement.hpp blocks/statements/statement.hpp temp.hpp)

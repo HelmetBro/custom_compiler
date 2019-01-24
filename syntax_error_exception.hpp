@@ -25,6 +25,13 @@ struct syntax_error : public std::exception{
         this->tok_length = tok_length;
     }
 
+    syntax_error(){
+        this->line_num = 0;
+        this->error_index = 0;
+        this->sentence = "";
+        this->tok_length = 0;
+    }
+
     const char * what () const noexcept override {
         std::ostringstream output;
         int position = static_cast<int>(error_index - tok_length);

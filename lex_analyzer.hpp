@@ -6,7 +6,7 @@
 #define LEX_ANALYZER
 
 #include <string>
-#include <vector>
+#include <queue>
 
 #include "token.hpp"
 #include "syntax_error_exception.hpp"
@@ -21,7 +21,7 @@ class lex_analyzer{
     token tok;
 
     std::string input_sentence;
-    std::vector<token> tokens;
+    std::queue<token> tokens;
 
 private:
 
@@ -211,7 +211,7 @@ private:
         }
 
         //add token to list and make a new one for next use
-        tokens.push_back(this->tok);
+        tokens.push(this->tok);
         tok = token();
 
         return FSM_STATE::START;
@@ -237,11 +237,11 @@ private:
 public:
 
     //takes sentence and gives tokens using FSM
-    std::vector<token> analyze(std::string const & input_sentence, unsigned long line_num){
+    std::queue<token> analyze(std::string const & input_sentence, unsigned long line_num){
 
         this->input_sentence = (input_sentence + ' ');
         this->index = 0;
-        this->tokens.clear();
+        std::queue<token>().swap(this->tokens); //clear the queue
 
         FSM_STATE token_state = FSM_STATE::START;
 
