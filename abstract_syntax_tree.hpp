@@ -7,6 +7,7 @@
 
 #include "token.hpp"
 #include "blocks/block.hpp"
+#include "blocks/statements/statement.hpp"
 #include "lex_analyzer.hpp"
 
 #include <queue>
@@ -18,11 +19,13 @@ private:
 
     lex_analyzer tokenizer;
     block * main;
-    block * current = main;
+//    block * current = main;
 
 public:
 
     static block * construct_block(std::queue<token> sentence);
+    static statement * construct_statement(std::queue<token> sentence);
+
     block * make_absyntree(std::ifstream * infile);
 };
 
