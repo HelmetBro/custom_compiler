@@ -10,6 +10,7 @@
 
 #include "expression.hpp"
 
+class expression;
 class designator {
 
     std::string ident;

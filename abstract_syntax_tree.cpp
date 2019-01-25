@@ -14,76 +14,61 @@
 #include "blocks/statements/function_call.hpp"
 #include "blocks/statements/assignment.hpp"
 
-block * absyntree::construct_block(std::queue<token> sentence){
+block * absyntree::construct_block(){
 
-    token first_token = sentence.front(); sentence.pop();
+    token first_token = tokenizer->get_token();
 
     switch(keyword_table[first_token.input]){
 
         /* Cases where constructor is recursive. */
         case KEYWORD::MAIN:
-            return new main_block(sentence);
+            return new main_block(&tokenizer);
 
         case KEYWORD::VAR:
         case KEYWORD::ARRAY:
-            return new var_dec_block(sentence);
+            return new var_dec_block(&tokenizer);
 
         case KEYWORD::FUNCTION:
         case KEYWORD::PROCEDURE: //KEYWORD::PROCEDURE | KEYWORD::FUNCTION
-            return new function_block(sentence);
+            return new function_block(&tokenizer);
 
         default:
             throw syntax_error();
     }
 }
 
-statement * absyntree::construct_statement(std::queue<token> sentence){
+statement * absyntree::construct_statement(){
 
-    token first_token = sentence.front(); sentence.pop();
+    token first_token = tokenizer->get_token();
 
     switch(keyword_table[first_token.input]){
 
         /* Cases where constructor is NOT recursive. */
         case KEYWORD::RETURN:
-            return new return_statement(sentence);
+            return new return_statement(&tokenizer);
 
         case KEYWORD::WHILE:
-            return new while_statement(sentence);
+            return new while_statement(&tokenizer);
 
         case KEYWORD::IF:
-            return new if_statement(sentence);
+            return new if_statement(&tokenizer);
 
         case KEYWORD::CALL:
-            return new function_call(sentence);
+            return new function_call(&tokenizer);
 
         case KEYWORD::LET:
-            return new assignment(sentence);
+            return new assignment(&tokenizer);
 
         default:
             throw syntax_error();
     }
 }
 
-block * absyntree::make_absyntree(std::ifstream * infile){
+block * absyntree::make_absyntree(){
 
-    std::string line;
-    unsigned long count = 0;
-    while(std::getline(*infile, line)){
+    block * temp = construct_block();
+    if(main == nullptr) //there's probably a better way to do this
+        main = temp;
 
-        std::queue<token> tokens;
-
-        if(tokens.empty())
-            try{
-                tokens = tokenizer.analyze(line, ++count);
-            } catch (syntax_error & s){
-                std::cerr << s.what();
-                exit(-1);
-            }
-
-        block * temp = construct_block(tokens);
-        if(this->main == nullptr) //there's probably a better way to do this
-            main = temp;
-    }
-
-    return this->main;
+    return main;
 }

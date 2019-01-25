@@ -7,6 +7,7 @@
 
 #include <string>
 #include <queue>
+#include <fstream>
 
 #include "token.hpp"
 #include "syntax_error_exception.hpp"
@@ -16,14 +17,16 @@
 /** Lexical analyzer to take input from stdin and return a vector of symbols. */
 class lex_analyzer{
 
-    unsigned long index;
+private:
 
+    std::ifstream infile;
+    unsigned long count = 0;
+
+    unsigned long index;
     token tok;
 
     std::string input_sentence;
     std::queue<token> tokens;
-
-private:
 
     //scoped enum to reduce conflicts
     enum class FSM_STATE {START, SYMBOL, NUMBER, KEYWORD, IDENTIFIER, POS_SYN_ERR, NEW_TOKEN, SYNTAX_ERR, END};
@@ -83,42 +86,6 @@ private:
         return FSM_STATE::NEW_TOKEN;
     }
 
-//    FSM_STATE keyword(char next){
-//
-//        //matching keyword
-//        if(is_keyword(tok.input + next)){
-//            add_char_token(next);
-//            return FSM_STATE::KEYWORD;
-//        }
-//
-//        //not a keyword, but is a letter
-//        if(isalpha(next)){
-//            add_char_token(next);
-//            return FSM_STATE::IDENTIFIER;
-//        }
-//
-//        tok.type = KEYWORD;
-//        return FSM_STATE::NEW_TOKEN;
-//    }
-//
-//    FSM_STATE identifier(char next){
-//
-//        //matching keyword
-//        if(is_keyword(tok.input + next)){
-//            add_char_token(next);
-//            return FSM_STATE::KEYWORD;
-//        }
-//
-//        //not a keyword, but is a letter
-//        if(isalpha(next)){
-//            add_char_token(next);
-//            return FSM_STATE::IDENTIFIER;
-//        }
-//
-//        tok.type = IDENTIFIER;
-//        return FSM_STATE::NEW_TOKEN;
-//    }
-
     FSM_STATE keyident(char next, FSM_STATE switch_state){
 
         //matching keyword
@@ -136,50 +103,6 @@ private:
         tok.type = switch_state == FSM_STATE::KEYWORD ? KEYWORD : IDENTIFIER;
         return FSM_STATE::NEW_TOKEN;
     }
-
-//    std::string symbol(char next, std::string input, std::string sentence, unsigned long index){
-//
-//        std::string sub_tok = input;
-//
-//        //matching symbol
-//        if(is_symbol(input + next)){
-//            input += next;
-//            index++;
-//            return symbol(sentence[index], input, sentence, index);
-//        }
-//
-//        //not a symbol in the table, but its a valid symbol character
-//        if(ispunct(next)){
-//            input += next;
-//            index++;
-//            std::string inner = pos_syn_err(sentence[index], input, sentence, index);
-//            if(inner.length() > sub_tok.length())
-//                sub_tok = inner;
-//        }
-//
-//        return sub_tok;
-//    }
-//
-//    std::string pos_syn_err(char next, std::string input, std::string sentence, unsigned long index) {
-//
-//        std::string sub_tok = input;
-//
-//        if(is_symbol(input + next)){
-//            input += next;
-//            index++;
-//            return symbol(sentence[index], input, sentence, index);
-//        }
-//
-//        if(ispunct(next)){
-//            input += next;
-//            index++;
-//            std::string inner = pos_syn_err(sentence[index], input, sentence, index);
-//            if(inner.length() > sub_tok.length())
-//                sub_tok = inner;
-//        }
-//
-//        return "";
-//    }
 
     std::string symbol(char next, std::string input, std::string sentence, unsigned long index, FSM_STATE recursive_state) {
 
@@ -235,6 +158,35 @@ private:
     }
 
 public:
+
+    lex_analyzer(const std::string &filename){
+        infile.open(filename);
+    }
+
+    ~lex_analyzer(){
+        infile.clear();
+    }
+
+    token get_token(){
+
+        if(tokens.empty())
+            try{
+
+                std::string line;
+                if(std::getline(infile, line))
+                    tokens = analyze(line, count++);
+
+            } catch (syntax_error & s){
+                std::cerr << s.what();
+                exit(-1);
+            }
+//        catch (){
+//
+//            }
+
+        token temp = tokens.front(); tokens.pop();
+        return temp;
+    }
 
     //takes sentence and gives tokens using FSM
     std::queue<token> analyze(std::string const & input_sentence, unsigned long line_num){

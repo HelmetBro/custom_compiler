@@ -17,16 +17,23 @@ class absyntree{
 
 private:
 
-    lex_analyzer tokenizer;
-    block * main;
-//    block * current = main;
+    static lex_analyzer * tokenizer;
+    static block * main;
 
 public:
 
-    static block * construct_block(std::queue<token> sentence);
-    static statement * construct_statement(std::queue<token> sentence);
+    explicit absyntree(lex_analyzer * lex){
+        tokenizer = lex;
+    }
 
-    block * make_absyntree(std::ifstream * infile);
+    ~absyntree(){
+        delete tokenizer;
+    }
+
+    static block * construct_block();
+    static statement * construct_statement();
+
+    block * make_absyntree();
 };
 
 #endif

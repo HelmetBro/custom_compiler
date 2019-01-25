@@ -21,10 +21,10 @@ private:
 
 public:
 
-//    explicit main_block(std::queue<token> sentence){
-//        token first_token = sentence.front(); sentence.pop();
-//        block * var_block = absyntree::construct_block(sentence);
-//    }
+    explicit main_block(std::queue<token> sentence){
+        token first_token = sentence.front(); sentence.pop();
+        block * var_block = absyntree::construct_block(sentence);
+    }
 
 };
 
