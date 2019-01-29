@@ -2,6 +2,7 @@
 #include <fstream>
 
 #include "abstract_syntax_tree.hpp"
+#include "lex_analyzer.hpp"
 
 /* HELPER DEBUG FUNCTION */
 static void print_token_vector(std::vector<token> path){

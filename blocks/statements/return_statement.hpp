@@ -8,10 +8,23 @@
 #include "statement.hpp"
 #include "rela_pressions/expression.hpp"
 
-class return_statement : statement{
+class return_statement : public statement{
+
+private:
 
     //optional
     expression * exp;
+
+public:
+
+    return_statement(){
+
+        absyntree::tokenizer->cycle_token();
+
+        if(lex_analyzer::p_tok->symbol != SYMBOL::R_BRACK)
+            exp = new expression();
+
+    }
 
 };
 

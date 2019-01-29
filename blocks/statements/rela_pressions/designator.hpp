@@ -9,14 +9,22 @@
 #include <vector>
 
 #include "expression.hpp"
+#include "../../../token.hpp"
+#include "../../../lex_analyzer.hpp"
 
 class expression;
 class designator {
+
+private:
 
     std::string ident;
 
     //optional
     std::vector<expression *> exp;
+
+public:
+
+    designator();
 
 };
 

@@ -8,15 +8,23 @@
 #include <vector>
 
 #include "term.hpp"
+#include "../../../abstract_syntax_tree.hpp"
 #include "../../../tables/symbol_table.hpp"
 
+class term;
 class expression {
+
+private:
 
     term * initial_term;
 
     //optional
     enum SYMBOL plus_minus;
-    std::vector<term *> optional_terms;
+    expression * optional_term;
+
+public:
+
+    expression();
 
 };
 

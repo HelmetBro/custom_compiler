@@ -11,10 +11,17 @@
 #include "statement.hpp"
 #include "rela_pressions/expression.hpp"
 
-class function_call : statement{
+class expression;
+class function_call : public statement {
+
+private:
 
     std::string name;
     std::vector<expression * > arguments; //optional
+
+public:
+
+    function_call();
 
 };
 

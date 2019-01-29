@@ -14,61 +14,67 @@
 #include "blocks/statements/function_call.hpp"
 #include "blocks/statements/assignment.hpp"
 
+lex_analyzer * absyntree::tokenizer = nullptr;
+block * absyntree::main = nullptr;
+
 block * absyntree::construct_block(){
 
-    token first_token = tokenizer->get_token();
-
-    switch(keyword_table[first_token.input]){
+    switch(lex_analyzer::p_tok->keyword){
 
         /* Cases where constructor is recursive. */
         case KEYWORD::MAIN:
-            return new main_block(&tokenizer);
+            return new main_block();
 
         case KEYWORD::VAR:
         case KEYWORD::ARRAY:
-            return new var_dec_block(&tokenizer);
+            return new var_dec_block();
 
         case KEYWORD::FUNCTION:
         case KEYWORD::PROCEDURE: //KEYWORD::PROCEDURE | KEYWORD::FUNCTION
-            return new function_block(&tokenizer);
+            return new function_block();
 
         default:
-            throw syntax_error();
+            return nullptr;
     }
+
 }
 
 statement * absyntree::construct_statement(){
 
-    token first_token = tokenizer->get_token();
-
-    switch(keyword_table[first_token.input]){
+    switch(lex_analyzer::p_tok->keyword){
 
         /* Cases where constructor is NOT recursive. */
         case KEYWORD::RETURN:
-            return new return_statement(&tokenizer);
+            return new return_statement();
 
         case KEYWORD::WHILE:
-            return new while_statement(&tokenizer);
+            return new while_statement();
 
         case KEYWORD::IF:
-            return new if_statement(&tokenizer);
+            return new if_statement();
 
         case KEYWORD::CALL:
-            return new function_call(&tokenizer);
+            return new function_call();
 
         case KEYWORD::LET:
-            return new assignment(&tokenizer);
+            return new assignment();
 
         default:
             throw syntax_error();
     }
+
 }
 
 block * absyntree::make_absyntree(){
 
-    block * temp = construct_block();
-    if(main == nullptr) //there's probably a better way to do this
-        main = temp;
+    tokenizer->cycle_token();
+
+    main = construct_block();
+
+//    if(first_token.keyword != KEYWORD::MAIN)
+//        throw syntax_error();
+//
+//    main = new main_block(tokenizer);
 
     return main;
 }

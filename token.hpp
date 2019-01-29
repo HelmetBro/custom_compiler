@@ -8,25 +8,34 @@
 #include <string>
 #include <iostream>
 
-enum TYPE {NUMBER, IDENTIFIER, KEYWORD, SYMBOL};
+enum TYPE {NUMBER, IDENTIFIER, KEYWORD, SYMBOL, NONE};
 
 struct token{
+
+public:
+
     std::string input = "";
-    TYPE type;
+    TYPE type = NONE;
     int value = -1; //only if it's a value
     int keyword = -1; //only if it's a keyword
     int symbol = -1; //only if it's a value
 
-public:
+    token() = default;
 
-//    /* Only need to clear input because type gets overridden on every pass, other values don't matter
-//     * because the type depends on its access. */
-//    void clear(){
-//        this->input = "";
-//    }
+    token(token const &tok){
+
+        if(this != &tok){
+            this->input = std::string(tok.input);
+            this->type = tok.type;
+            this->value = tok.value;
+            this->keyword = tok.keyword;
+            this->symbol = tok.symbol;
+        }
+
+    }
 
     std::string to_string(){
-        std::string result = "";
+        std::string result;
         result += "{" + input + "}[";
 
         switch (type){

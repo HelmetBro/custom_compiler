@@ -9,7 +9,7 @@
 #include "var_dec_block.hpp"
 #include "function_block.hpp"
 #include "body_block.hpp"
-//#include "../abstract_syntax_tree.hpp"
+#include "../lex_analyzer.hpp"
 
 class main_block : public block {
 
@@ -17,13 +17,43 @@ private:
 
     std::vector<var_dec_block *> variables;
     std::vector<function_block *> functions;
-    std::vector<body_block *> body; //"main" function
+    body_block * body; //"main" function
 
 public:
 
-    explicit main_block(std::queue<token> sentence){
-        token first_token = sentence.front(); sentence.pop();
-        block * var_block = absyntree::construct_block(sentence);
+    explicit main_block(){
+        type = BLOCK_TYPE::MAIN;
+
+        absyntree::tokenizer->cycle_token();
+
+        //if i don't go straight through to '{'
+        if(lex_analyzer::p_tok->symbol != SYMBOL::L_BRACK){
+
+            block * temp = absyntree::construct_block();
+
+            //optional 0 or more variable declarations
+            while(temp != nullptr && temp->type == BLOCK_TYPE::VAR_DEC){
+                variables.push_back(dynamic_cast<var_dec_block *>(temp));
+                absyntree::tokenizer->cycle_token();
+                temp = absyntree::construct_block();
+            }
+
+            //optional 0 or more function declarations
+            while(temp != nullptr && temp->type == BLOCK_TYPE::FUNCTION){
+                functions.push_back(dynamic_cast<function_block *>(temp));
+                absyntree::tokenizer->cycle_token();
+                temp = absyntree::construct_block();
+            }
+
+        }
+
+        //at this point, should have '{'
+        if(lex_analyzer::p_tok->symbol != L_BRACK)
+            throw syntax_error();
+
+        //main function
+        body = new body_block();
+
     }
 
 };

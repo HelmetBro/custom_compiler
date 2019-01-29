@@ -8,15 +8,24 @@
 #include <vector>
 
 #include "factor.hpp"
+#include "../../../lex_analyzer.hpp"
 #include "../../../tables/symbol_table.hpp"
 
+class factor;
 class term{
+
+private:
 
     factor * initial_term;
 
     //optional
     enum SYMBOL times_divide;
-    std::vector<factor *> optional_term;
+    term * optional_term;
+
+public:
+
+    term();
+
 };
 
 #endif

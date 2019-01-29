@@ -17,10 +17,11 @@ class absyntree{
 
 private:
 
-    static lex_analyzer * tokenizer;
     static block * main;
 
 public:
+
+    static lex_analyzer * tokenizer;
 
     explicit absyntree(lex_analyzer * lex){
         tokenizer = lex;

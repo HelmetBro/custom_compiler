@@ -1,3 +1,10 @@
-//^@)*%^#)($%^
 main
-while()p-|
+var WOAH, hjsdfh, qqqq;
+array[5] waffle;
+var UNDER;
+//function max;
+//{
+//    return 4 * 5 + 6
+//};
+{
+}.

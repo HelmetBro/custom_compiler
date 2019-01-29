@@ -9,10 +9,20 @@
 #include "rela_pressions/designator.hpp"
 #include "rela_pressions/expression.hpp"
 
-class assignment : statement{
+class assignment : public statement {
+
+private:
 
     designator * des;
     expression * exp;
+
+public:
+
+    assignment(){
+        des = new designator();
+        absyntree::tokenizer->cycle_token(); //removing the '<-'
+        exp = new expression();
+    }
 
 };
 

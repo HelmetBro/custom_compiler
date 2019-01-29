@@ -16,6 +16,18 @@
 
 class block{
 
+public:
+
+    enum class BLOCK_TYPE {MAIN, VAR_DEC, FUNCTION, BODY};
+
+    BLOCK_TYPE type;
+
+    //https://stackoverflow.com/questions/8469900/cant-downcast-because-class-is-not-polymorphic/8469954
+    //"consider making the destructor, virtual"
+    virtual void print(){
+        int i = 0; //TEMP
+    }
+
 };
 
 #endif

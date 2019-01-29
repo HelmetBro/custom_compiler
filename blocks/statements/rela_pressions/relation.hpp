@@ -10,9 +10,14 @@
 
 class relation{
 
+private:
     expression * left_expression;
     enum SYMBOL relOp;
     expression * right_expression;
+
+public:
+
+    relation();
 
 };
 

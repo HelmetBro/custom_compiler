@@ -19,206 +19,50 @@ class lex_analyzer{
 
 private:
 
+    //file stats
     std::ifstream infile;
     unsigned long count = 0;
 
+    //tokenizer build variables
     unsigned long index;
     token tok;
 
+    //storage!
     std::string input_sentence;
     std::queue<token> tokens;
 
     //scoped enum to reduce conflicts
-    enum class FSM_STATE {START, SYMBOL, NUMBER, KEYWORD, IDENTIFIER, POS_SYN_ERR, NEW_TOKEN, SYNTAX_ERR, END};
+    enum class FSM_STATE;
 
-    char next_char(){
-        return input_sentence[++index];
-    }
+    char next_char();
+    char this_char();
+    void add_char_token(char next);
 
-    char this_char(){
-        return input_sentence[index];
-    }
+    FSM_STATE start(char next);
 
-    void add_char_token(char next){
-        tok.input += next;
-    }
+    FSM_STATE number(char next);
 
-    FSM_STATE start(char next){
+    FSM_STATE keyident(char next, FSM_STATE switch_state);
 
-        //whitespace
-        if(isspace(next)){
-            next_char();
-            return FSM_STATE::START;
-        }
+    std::string symbol(char next, std::string input, std::string sentence, unsigned long index, FSM_STATE recursive_state);
 
-        add_char_token(next);
+    FSM_STATE finalize_token();
 
-        //digit
-        if(isdigit(next))
-            return FSM_STATE::NUMBER;
-
-        //letter
-        if(isalpha(next)){
-            if(is_keyword(tok))
-                return FSM_STATE::KEYWORD;
-            else
-                return FSM_STATE::IDENTIFIER;
-        }
-
-        //symbol
-        return FSM_STATE::SYMBOL;
-    }
-
-    FSM_STATE number(char next){
-
-        //digit
-        if(isdigit(next)){
-            add_char_token(next);
-            return FSM_STATE::NUMBER;
-        }
-
-        //letter
-        if(isalpha(next))
-            return FSM_STATE::SYNTAX_ERR;
-
-        //anything but a letter
-        tok.type = NUMBER;
-        return FSM_STATE::NEW_TOKEN;
-    }
-
-    FSM_STATE keyident(char next, FSM_STATE switch_state){
-
-        //matching keyword
-        if(is_keyword(tok.input + next)){
-            add_char_token(next);
-            return FSM_STATE::KEYWORD;
-        }
-
-        //not a keyword, but is a letter
-        if(isalpha(next)){
-            add_char_token(next);
-            return FSM_STATE::IDENTIFIER;
-        }
-
-        tok.type = switch_state == FSM_STATE::KEYWORD ? KEYWORD : IDENTIFIER;
-        return FSM_STATE::NEW_TOKEN;
-    }
-
-    std::string symbol(char next, std::string input, std::string sentence, unsigned long index, FSM_STATE recursive_state) {
-
-        std::string sub_tok = input;
-
-        if(is_symbol(input + next)){
-            input += next;
-            index++;
-            return symbol(sentence[index], input, sentence, index, FSM_STATE::SYMBOL);
-        }
-
-        if(ispunct(next)){
-            input += next;
-            index++;
-            std::string inner = symbol(sentence[index], input, sentence, index, FSM_STATE::POS_SYN_ERR);
-            if(inner.length() > sub_tok.length())
-                sub_tok = inner;
-        }
-
-        return recursive_state == FSM_STATE::SYMBOL ? sub_tok : "";
-    }
-
-    FSM_STATE finalize_token(){
-
-        switch (tok.type){
-            case NUMBER: tok.value = stoi(tok.input); break;
-            case KEYWORD: tok.keyword = keyword_table[tok.input]; break;
-            case SYMBOL: tok.symbol = symbol_table[tok.input]; break;
-        }
-
-        //add token to list and make a new one for next use
-        tokens.push(this->tok);
-        tok = token();
-
-        return FSM_STATE::START;
-    }
-
-    FSM_STATE finalize_symbol(const std::string & temp_token){
-
-        if(is_symbol(temp_token)){
-
-            //check if comment character. if so, skip and return (-1 for indexing)
-            if(symbol_table[temp_token] > symbol_table.size() - NUM_COMMENT_SYMBOLS - 1)
-                return FSM_STATE::END;
-
-            tok.input = temp_token;
-            this->index += temp_token.length() - 1;
-            tok.type = SYMBOL;
-            return FSM_STATE::NEW_TOKEN;
-        }
-
-        return FSM_STATE::SYNTAX_ERR;
-    }
+    FSM_STATE finalize_symbol(const std::string & temp_token);
 
 public:
 
-    lex_analyzer(const std::string &filename){
-        infile.open(filename);
-    }
+    //current token pointer
+    static token * p_tok;
 
-    ~lex_analyzer(){
-        infile.clear();
-    }
+    explicit lex_analyzer(const std::string &filename);
 
-    token get_token(){
+    ~lex_analyzer();
 
-        if(tokens.empty())
-            try{
-
-                std::string line;
-                if(std::getline(infile, line))
-                    tokens = analyze(line, count++);
-
-            } catch (syntax_error & s){
-                std::cerr << s.what();
-                exit(-1);
-            }
-//        catch (){
-//
-//            }
-
-        token temp = tokens.front(); tokens.pop();
-        return temp;
-    }
+    void cycle_token();
 
     //takes sentence and gives tokens using FSM
-    std::queue<token> analyze(std::string const & input_sentence, unsigned long line_num){
-
-        this->input_sentence = (input_sentence + ' ');
-        this->index = 0;
-        std::queue<token>().swap(this->tokens); //clear the queue
-
-        FSM_STATE token_state = FSM_STATE::START;
-
-        unsigned long sentence_length = this->input_sentence.length();
-        while(index != sentence_length){
-
-            //only grab another if im still processing
-            char next = (token_state == FSM_STATE::START || token_state == FSM_STATE::NEW_TOKEN) ? this_char() : next_char();
-
-            switch(token_state){
-                case FSM_STATE::START: token_state = start(next); break;
-                case FSM_STATE::NUMBER: token_state = number(next); break;
-                case FSM_STATE::KEYWORD: token_state = keyident(next, token_state); break;
-                case FSM_STATE::IDENTIFIER: token_state = keyident(next, token_state); break;
-                case FSM_STATE::SYMBOL: token_state = finalize_symbol(symbol(next, tok.input, this->input_sentence, this->index, token_state)); break;
-                case FSM_STATE::NEW_TOKEN: token_state = finalize_token(); break;
-                case FSM_STATE::END: return this->tokens;
-                default:
-                    throw syntax_error(line_num, index, input_sentence, tok.input.length() - 1);
-            }
-        }
-
-        // we can return this reference if we feed tokens in the parser line-by-line
-        return this->tokens;
-    }
+    std::queue<token> analyze(std::string const & input_sentence, unsigned long line_num);
 };
 
 #endif
