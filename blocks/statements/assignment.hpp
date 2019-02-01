@@ -22,6 +22,7 @@ public:
         des = new designator();
         absyntree::tokenizer->cycle_token(); //removing the '<-'
         exp = new expression();
+        absyntree::tokenizer->cycle_token(); //removing the ';'
     }
 
 };

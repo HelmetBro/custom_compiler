@@ -41,7 +41,8 @@ public:
             //optional 0 or more function declarations
             while(temp != nullptr && temp->type == BLOCK_TYPE::FUNCTION){
                 functions.push_back(dynamic_cast<function_block *>(temp));
-                absyntree::tokenizer->cycle_token();
+                absyntree::tokenizer->cycle_token(); //gets rid of '}'
+                absyntree::tokenizer->cycle_token(); //gets rid of ';'
                 temp = absyntree::construct_block();
             }
 
@@ -61,14 +62,15 @@ public:
     }
 
     void print() override {
-        std::cout << "----------\n";
+        std::cout << "__________\n";
         std::cout << "| main_block\n";
         for(auto v : variables)
             v->print();
         for(auto f : functions)
             f->print();
+        std::cout << "> MAIN BODY:\n";
         body->print();
-        std::cout << "\n----------\n";
+        std::cout << std::endl;
     }
 
 };

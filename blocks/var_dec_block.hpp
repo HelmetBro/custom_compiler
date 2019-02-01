@@ -56,12 +56,12 @@ public:
     }
 
     void print() override {
-        std::cout << "----------\n";
+        std::cout << "__________\n";
         std::cout << "| var_dec_block\n";
         std::cout << "| is_array: " << is_array << std::endl;
         std::cout << "| idents: "; print_string_vector(idents);
         std::cout << "\n| numbers: "; print_int_vector(numbers);
-        std::cout << "\n----------\n";
+        std::cout << std::endl;
     }
 
 };

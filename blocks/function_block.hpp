@@ -76,14 +76,16 @@ public:
     }
 
     void print() override {
-        std::cout << "----------\n";
+        std::cout << "__________\n";
         std::cout << "| function_block\n";
         std::cout << "| name: " << name << std::endl;
         std::cout << "| parameters: "; print_string_vector(parameters);
+        std::cout << std::endl;
         for(auto v : variables)
             v->print();
+        std::cout << "> FUNCTION BODY:\n";
         if(body != nullptr) body->print();
-        std::cout << "\n----------\n";
+        std::cout << std::endl;
     }
 
 };

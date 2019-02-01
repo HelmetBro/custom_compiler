@@ -2,12 +2,16 @@ main
 var WOAH, hjsdfh, qqqq;
 array[5] waffle;
 var UNDER;
-function max;
+function max(   g   );
+{
+    return 1 / 4 + 5 * 6
+};
+function min(   g   );
 {
     return 1 / 4 + 5 * 6
 };
 {
-    let a <- 4 * 6;
+    let a <- 4;
     let b <- 98;
 
 }.
