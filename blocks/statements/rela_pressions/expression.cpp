@@ -8,7 +8,7 @@ expression::expression(){
 
     initial_term = new term();
 
-    absyntree::tokenizer->cycle_token();
+//    absyntree::tokenizer->cycle_token();
 
     while(lex_analyzer::p_tok->symbol == SYMBOL::SUB || lex_analyzer::p_tok->symbol == SYMBOL::ADD){
 

@@ -2,9 +2,12 @@ main
 var WOAH, hjsdfh, qqqq;
 array[5] waffle;
 var UNDER;
-//function max;
-//{
-//    return 4 * 5 + 6
-//};
+function max;
 {
+    return 1 / 4 + 5 * 6
+};
+{
+    let a <- 4 * 6;
+    let b <- 98;
+
 }.

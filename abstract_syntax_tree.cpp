@@ -41,7 +41,10 @@ block * absyntree::construct_block(){
 
 statement * absyntree::construct_statement(){
 
-    switch(lex_analyzer::p_tok->keyword){
+    auto statement_type = static_cast<enum KEYWORD>(lex_analyzer::p_tok->keyword);
+    absyntree::tokenizer->cycle_token();
+
+    switch(statement_type){
 
         /* Cases where constructor is NOT recursive. */
         case KEYWORD::RETURN:
@@ -76,5 +79,13 @@ block * absyntree::make_absyntree(){
 //
 //    main = new main_block(tokenizer);
 
+    tokenizer->cycle_token();
+    if(lex_analyzer::p_tok->symbol != SYMBOL::PERIOD)
+        throw syntax_error();
+
     return main;
+}
+
+void absyntree::print_absyntree(){
+    absyntree::main->print();
 }

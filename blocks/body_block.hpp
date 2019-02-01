@@ -27,15 +27,23 @@ public:
                 lex_analyzer::p_tok->keyword != KEYWORD::OD &&
                 lex_analyzer::p_tok->keyword != KEYWORD::ELSE &&
                 lex_analyzer::p_tok->keyword != KEYWORD::FI){
-                statements.push_back(absyntree::construct_statement());
-            absyntree::tokenizer->cycle_token();
+
+            //add statements to body, and cycle onto the next token
+            statements.push_back(absyntree::construct_statement());
+
         }
 
     }
 
-    bool is_empty(){
-        return statements.empty();
+    void print() override {
+        for(auto s : statements)
+            std::cout << "STATEMENT\n";
+//            s.print();
     }
+
+//    bool is_empty(){
+//        return statements.empty();
+//    }
 
 };
 

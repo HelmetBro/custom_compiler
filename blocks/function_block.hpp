@@ -75,6 +75,17 @@ public:
         body = new body_block();
     }
 
+    void print() override {
+        std::cout << "----------\n";
+        std::cout << "| function_block\n";
+        std::cout << "| name: " << name << std::endl;
+        std::cout << "| parameters: "; print_string_vector(parameters);
+        for(auto v : variables)
+            v->print();
+        if(body != nullptr) body->print();
+        std::cout << "\n----------\n";
+    }
+
 };
 
 #endif

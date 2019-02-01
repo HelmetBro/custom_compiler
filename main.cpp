@@ -23,6 +23,7 @@ int main() {
     //pass tokenizer into tree, and make the parse tree
     absyntree tree(&lex);
     tree.make_absyntree();
+    tree.print_absyntree();
 
     return 0;
 }

@@ -154,10 +154,8 @@ void lex_analyzer::cycle_token(){
         try{
 
             std::string line;
-            while(std::getline(infile, line) && tokens.empty())
+            while(tokens.empty() && std::getline(infile, line))
                 tokens = analyze(line, count++);
-
-//            if(std::getline(infile, line))
 
         } catch (syntax_error & s){
             std::cerr << s.what();

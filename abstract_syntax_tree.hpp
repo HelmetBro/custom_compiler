@@ -35,6 +35,8 @@ public:
     static statement * construct_statement();
 
     block * make_absyntree();
+
+    void print_absyntree();
 };
 
 #endif

@@ -19,8 +19,6 @@ public:
 
     return_statement(){
 
-        absyntree::tokenizer->cycle_token();
-
         if(lex_analyzer::p_tok->symbol != SYMBOL::R_BRACK)
             exp = new expression();
 

@@ -47,6 +47,10 @@ public:
 
         }
 
+        //need this because function statements end with a semi colon
+        if(lex_analyzer::p_tok->symbol == SEMI)
+            absyntree::tokenizer->cycle_token();
+
         //at this point, should have '{'
         if(lex_analyzer::p_tok->symbol != L_BRACK)
             throw syntax_error();
@@ -54,6 +58,17 @@ public:
         //main function
         body = new body_block();
 
+    }
+
+    void print() override {
+        std::cout << "----------\n";
+        std::cout << "| main_block\n";
+        for(auto v : variables)
+            v->print();
+        for(auto f : functions)
+            f->print();
+        body->print();
+        std::cout << "\n----------\n";
     }
 
 };

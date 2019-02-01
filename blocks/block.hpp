@@ -24,8 +24,26 @@ public:
 
     //https://stackoverflow.com/questions/8469900/cant-downcast-because-class-is-not-polymorphic/8469954
     //"consider making the destructor, virtual"
-    virtual void print(){
-        int i = 0; //TEMP
+    virtual void print() = 0;
+
+    /* HELPER DEBUG FUNCTION */
+    static void print_string_vector(std::vector<std::string> path){
+
+        std::cout << "[ ";
+        for (auto &i : path)
+            std::cout << i << ' ';
+        std::cout << "]";
+
+    }
+
+    /* HELPER DEBUG FUNCTION */
+    static void print_int_vector(std::vector<int> path){
+
+        std::cout << "[ ";
+        for (auto &i : path)
+            std::cout << i << ' ';
+        std::cout << "]";
+
     }
 
 };
