@@ -68,7 +68,7 @@ public:
             v->print();
         for(auto f : functions)
             f->print();
-        std::cout << "> MAIN BODY:\n";
+        std::cout << "v~ MAIN BODY ~v\n";
         body->print();
         std::cout << std::endl;
     }

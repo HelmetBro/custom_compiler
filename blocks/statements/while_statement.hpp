@@ -34,6 +34,12 @@ public:
 
     }//while a>b do
 
+    void print() override {
+        std::cout << "* WHILE: ";
+        condition->print();
+        true_body->print();
+    }
+
 };
 
 #endif

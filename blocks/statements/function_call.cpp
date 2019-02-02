@@ -8,9 +8,7 @@
 
 function_call::function_call(){
 
-    absyntree::tokenizer->cycle_token();
     name = lex_analyzer::p_tok->input;
-
     absyntree::tokenizer->cycle_token();
 
     if(lex_analyzer::p_tok->symbol == SYMBOL::L_PAREN){
@@ -30,8 +28,24 @@ function_call::function_call(){
 
     }
 
-    //at this point, should have ')'
-//        if(tokenizer->get_token().symbol != SYMBOL::R_PAREN)
-//            throw syntax_error();
+    absyntree::tokenizer->cycle_token();
+
+
+}
+
+void function_call::print() {
+
+    std::cout << "* CALL: " << name;
+
+    if(!arguments.empty()){
+        std::cout << "( ";
+
+        for(auto a : arguments){
+            a->print();
+            std::cout << " ";
+        }
+
+        std::cout << ")";
+    }
 
 }

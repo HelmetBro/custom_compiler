@@ -21,3 +21,16 @@ factor::factor(){
         throw syntax_error();
 
 }
+
+void factor::print(){
+
+    if(func_call != nullptr)
+        func_call->print();
+    else if (des != nullptr)
+        des->print();
+    else if (exp != nullptr)
+        exp->print();
+    else
+        std::cout << number;
+
+}

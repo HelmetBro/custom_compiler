@@ -26,6 +26,8 @@ public:
 
     expression();
 
+    void print();
+
 };
 
 #endif

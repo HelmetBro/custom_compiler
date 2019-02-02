@@ -26,6 +26,8 @@ public:
 
     designator();
 
+    void print();
+
 };
 
 #endif

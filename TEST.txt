@@ -4,14 +4,14 @@ array[5] waffle;
 var UNDER;
 function max(   g   );
 {
-    return 1 / 4 + 5 * 6
+    return
 };
 function min(   g   );
 {
-    return 1 / 4 + 5 * 6
+    call max
 };
 {
     let a <- 4;
-    let b <- 98;
+    let b <- 98
 
 }.

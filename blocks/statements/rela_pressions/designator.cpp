@@ -16,3 +16,16 @@ designator::designator(){
     }
 
 }
+
+void designator::print() {
+
+    std::cout << ident;
+
+    if(!exp.empty())
+        for(auto e : exp){
+            std::cout << "[";
+            e->print();
+            std::cout << "]";
+        }
+
+}

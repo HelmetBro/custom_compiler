@@ -18,10 +18,16 @@ private:
 public:
 
     return_statement(){
-
         if(lex_analyzer::p_tok->symbol != SYMBOL::R_BRACK)
             exp = new expression();
+    }
 
+    void print() override {
+        std::cout << "* RETURN: ";
+        if(exp != nullptr)
+            exp->print();
+        else
+            std::cout << "[none]";
     }
 
 };

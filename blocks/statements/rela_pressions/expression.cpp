@@ -27,3 +27,12 @@ expression::expression(){
     }
 
 }
+
+void expression::print(){
+    initial_term->print();
+
+    if(optional_term != nullptr){
+        std::cout << (plus_minus == SUB ? "-" : "+");
+        optional_term->print();
+    }
+}

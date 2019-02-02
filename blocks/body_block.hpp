@@ -36,14 +36,11 @@ public:
     }
 
     void print() override {
-        for(auto s : statements)
-            std::cout << "STATEMENT\n";
-//            s.print();
+        for(auto s : statements){
+            s->print();
+            std::cout << std::endl;
+        }
     }
-
-//    bool is_empty(){
-//        return statements.empty();
-//    }
 
 };
 

@@ -26,6 +26,8 @@ public:
 
     factor();
 
+    void print();
+
 };
 
 #endif

@@ -23,6 +23,8 @@ public:
 
     function_call();
 
+    void print();
+
 };
 
 #endif

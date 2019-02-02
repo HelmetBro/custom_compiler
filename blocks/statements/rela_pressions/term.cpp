@@ -27,3 +27,12 @@ term::term(){
     }
 
 }
+
+void term::print(){
+    initial_term->print();
+
+    if(optional_term != nullptr){
+        std::cout << (times_divide == MUL ? "*" : "/");
+        optional_term->print();
+    }
+}

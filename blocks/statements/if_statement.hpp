@@ -39,6 +39,20 @@ public:
 
     }
 
+    void print() override {
+        std::cout << "* IF: ";
+        condition->print();
+        std::cout << " THEN";
+        true_body->print();
+
+        if(false_body != nullptr){
+            std::cout << "ELSE:";
+            false_body->print();
+        }
+
+    }
+
+
 };
 
 #endif

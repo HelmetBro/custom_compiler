@@ -26,6 +26,8 @@ public:
 
     term();
 
+    void print();
+
 };
 
 #endif

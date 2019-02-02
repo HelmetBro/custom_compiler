@@ -25,6 +25,13 @@ public:
         absyntree::tokenizer->cycle_token(); //removing the ';'
     }
 
+    void print() override {
+        std::cout << "* ASSIGN: ";
+        des->print();
+        std::cout << " = ";
+        exp->print();
+    }
+
 };
 
 #endif

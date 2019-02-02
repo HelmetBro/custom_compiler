@@ -14,3 +14,9 @@ relation::relation(){
     right_expression = new expression();
 
 }
+
+void relation::print(){
+    left_expression->print();
+    std::cout << " " << relOp << " ";
+    right_expression->print();
+}
