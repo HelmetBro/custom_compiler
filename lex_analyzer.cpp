@@ -139,6 +139,7 @@ lex_analyzer::FSM_STATE lex_analyzer::finalize_symbol(const std::string & temp_t
 /* PUBLIC */
 
 lex_analyzer::lex_analyzer(const std::string &filename){
+    lex_analyzer::p_tok = nullptr;
     this->infile.open(filename);
     this->index = 0;
 }
