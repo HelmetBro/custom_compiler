@@ -13,12 +13,12 @@ class return_statement : public statement{
 private:
 
     //optional
-    expression * exp;
+    expression * exp = nullptr;
 
 public:
 
     return_statement(){
-        if(lex_analyzer::p_tok->symbol != SYMBOL::R_BRACK)
+        if(lex_analyzer::p_tok->symbol != SYMBOL::R_BRACK && lex_analyzer::p_tok->type != TYPE::KEYWORD)
             exp = new expression();
     }
 

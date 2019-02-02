@@ -13,23 +13,18 @@ function_call::function_call(){
 
     if(lex_analyzer::p_tok->symbol == SYMBOL::L_PAREN){
 
-        absyntree::tokenizer->cycle_token();
-        while(lex_analyzer::p_tok->symbol != SYMBOL::R_PAREN){
-
-            //adding expression argument to list
+        //getting argument
+        do{
+            absyntree::tokenizer->cycle_token();
+            if(lex_analyzer::p_tok->symbol == SYMBOL::R_PAREN)
+                break;
             arguments.push_back(new expression());
+        }while(lex_analyzer::p_tok->symbol != SYMBOL::R_PAREN);
 
-            //remove comma
-            absyntree::tokenizer->cycle_token();
-
-            //get new expression
-            absyntree::tokenizer->cycle_token();
-        }
+        //getting rid of last r_paren
+        absyntree::tokenizer->cycle_token();
 
     }
-
-    absyntree::tokenizer->cycle_token();
-
 
 }
 

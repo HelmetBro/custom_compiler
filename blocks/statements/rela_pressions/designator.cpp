@@ -11,6 +11,7 @@ designator::designator(){
     absyntree::tokenizer->cycle_token();
 
     while(lex_analyzer::p_tok->symbol == SYMBOL::L_BRACE){
+        absyntree::tokenizer->cycle_token(); //get rid of the '['
         exp.push_back(new expression());
         absyntree::tokenizer->cycle_token();
     }

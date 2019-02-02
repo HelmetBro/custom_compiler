@@ -17,7 +17,7 @@ private:
 
     std::vector<var_dec_block *> variables;
     std::vector<function_block *> functions;
-    body_block * body; //"main" function
+    body_block * body = nullptr; //"main" function
 
 public:
 

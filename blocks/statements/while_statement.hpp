@@ -13,8 +13,8 @@ class while_statement : public statement {
 
 private:
 
-    relation * condition;
-    body_block * true_body;
+    relation * condition = nullptr;
+    body_block * true_body = nullptr;
 
 public:
 
@@ -24,20 +24,22 @@ public:
         condition = new relation();
 
         //body
-        block * temp = absyntree::construct_block();
-        true_body = dynamic_cast<body_block *>(temp);
+        true_body = new body_block();
 
         //at this point, should have "od"
-        absyntree::tokenizer->cycle_token();
-        if(lex_analyzer::p_tok->value != KEYWORD::OD)
+        if(lex_analyzer::p_tok->keyword != KEYWORD::OD)
             throw syntax_error();
 
-    }//while a>b do
+        absyntree::tokenizer->cycle_token();
+
+    }
 
     void print() override {
-        std::cout << "* WHILE: ";
+        std::cout << "*WHILE: ";
         condition->print();
+        std::cout << " DO:\n";
         true_body->print();
+        std::cout << "*OD";
     }
 
 };

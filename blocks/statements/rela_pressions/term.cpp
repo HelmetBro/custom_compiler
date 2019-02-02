@@ -8,8 +8,6 @@ term::term(){
 
     initial_term = new factor();
 
-    absyntree::tokenizer->cycle_token();
-
     while(lex_analyzer::p_tok->symbol == SYMBOL::MUL || lex_analyzer::p_tok->symbol == SYMBOL::DIV){
 
         //adding symbol

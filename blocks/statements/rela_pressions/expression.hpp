@@ -16,11 +16,11 @@ class expression {
 
 private:
 
-    term * initial_term;
+    term * initial_term = nullptr;
 
     //optional
     enum SYMBOL plus_minus;
-    expression * optional_term;
+    expression * optional_term = nullptr;
 
 public:
 

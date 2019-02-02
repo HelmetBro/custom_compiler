@@ -16,11 +16,11 @@ class term{
 
 private:
 
-    factor * initial_term;
+    factor * initial_term = nullptr;
 
     //optional
     enum SYMBOL times_divide;
-    term * optional_term;
+    term * optional_term = nullptr;
 
 public:
 

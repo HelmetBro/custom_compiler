@@ -27,10 +27,6 @@ public:
         tokenizer = lex;
     }
 
-    ~absyntree(){
-        delete tokenizer;
-    }
-
     static block * construct_block();
     static statement * construct_statement();
 

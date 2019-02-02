@@ -63,6 +63,7 @@ public:
 
     //takes sentence and gives tokens using FSM
     std::queue<token> analyze(std::string const & input_sentence, unsigned long line_num);
+
 };
 
 #endif

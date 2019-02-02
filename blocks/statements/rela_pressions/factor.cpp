@@ -8,29 +8,32 @@
 
 factor::factor(){
 
-    if (lex_analyzer::p_tok->type == NUMBER)
+    if (lex_analyzer::p_tok->type == NUMBER){
         number = lex_analyzer::p_tok->value;
-    else if (lex_analyzer::p_tok->symbol == SYMBOL::L_PAREN){
+        absyntree::tokenizer->cycle_token();
+    } else if (lex_analyzer::p_tok->symbol == SYMBOL::L_PAREN){
         absyntree::tokenizer->cycle_token();
         exp = new expression();
-    } else if (lex_analyzer::p_tok->keyword == KEYWORD::CALL)
+        absyntree::tokenizer->cycle_token();
+    } else if (lex_analyzer::p_tok->keyword == KEYWORD::CALL){
+        absyntree::tokenizer->cycle_token();
         func_call = new function_call();
-    else if(lex_analyzer::p_tok->type == IDENTIFIER)
+    } else if(lex_analyzer::p_tok->type == IDENTIFIER){
         des = new designator();
-    else
+    } else
         throw syntax_error();
 
 }
 
 void factor::print(){
-
     if(func_call != nullptr)
         func_call->print();
     else if (des != nullptr)
         des->print();
-    else if (exp != nullptr)
+    else if (exp != nullptr){
+        std::cout << "(";
         exp->print();
-    else
-        std::cout << number;
-
+        std::cout << ")";
+    } else
+    std::cout << number;
 }

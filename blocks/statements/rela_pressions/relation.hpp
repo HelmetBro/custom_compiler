@@ -11,9 +11,9 @@
 class relation{
 
 private:
-    expression * left_expression;
+    expression * left_expression = nullptr;
     enum SYMBOL relOp;
-    expression * right_expression;
+    expression * right_expression = nullptr;
 
 public:
 

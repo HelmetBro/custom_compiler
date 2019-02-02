@@ -63,7 +63,7 @@ statement * absyntree::construct_statement(){
             return new assignment();
 
         default:
-            throw syntax_error();
+            return nullptr;
     }
 
 }
@@ -71,14 +71,7 @@ statement * absyntree::construct_statement(){
 block * absyntree::make_absyntree(){
 
     tokenizer->cycle_token();
-
     main = construct_block();
-
-//    if(first_token.keyword != KEYWORD::MAIN)
-//        throw syntax_error();
-//
-//    main = new main_block(tokenizer);
-
     tokenizer->cycle_token();
     if(lex_analyzer::p_tok->symbol != SYMBOL::PERIOD)
         throw syntax_error();

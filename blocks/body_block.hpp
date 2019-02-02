@@ -20,18 +20,17 @@ public:
     explicit body_block(){
         this->type = BLOCK_TYPE::BODY;
 
-        absyntree::tokenizer->cycle_token();
-
         //loops until all statements are completed
-        while(lex_analyzer::p_tok->symbol != SYMBOL::R_BRACK &&
-                lex_analyzer::p_tok->keyword != KEYWORD::OD &&
-                lex_analyzer::p_tok->keyword != KEYWORD::ELSE &&
-                lex_analyzer::p_tok->keyword != KEYWORD::FI){
+        do{
+            absyntree::tokenizer->cycle_token();
 
-            //add statements to body, and cycle onto the next token
-            statements.push_back(absyntree::construct_statement());
+            statement * temp = absyntree::construct_statement();
 
-        }
+            if(temp != nullptr)
+                statements.push_back(temp);
+            else break;
+
+        } while(lex_analyzer::p_tok->symbol == SYMBOL::SEMI);
 
     }
 

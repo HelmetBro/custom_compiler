@@ -17,7 +17,7 @@ private:
     std::string name;
     std::vector<std::string> parameters; //optional
     std::vector<var_dec_block *> variables;
-    body_block * body; //optional
+    body_block * body = nullptr; //optional
 
 public:
 

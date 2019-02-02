@@ -13,9 +13,9 @@ class if_statement : public statement {
 
 private:
 
-    relation * condition;
-    body_block * true_body;
-    body_block * false_body; //optional
+    relation * condition = nullptr;
+    body_block * true_body = nullptr;
+    body_block * false_body = nullptr; //optional
 
 public:
 
@@ -25,30 +25,31 @@ public:
         condition = new relation();
 
         //true body
-        block * temp = absyntree::construct_block();
-        true_body = dynamic_cast<body_block *>(temp);
+        true_body = new body_block();
 
         //optional false body
-        temp = absyntree::construct_block();
-        false_body = dynamic_cast<body_block *>(temp);
+        if(lex_analyzer::p_tok->keyword == KEYWORD::ELSE)
+            false_body = new body_block();
 
         //at this point, should have "fi"
-        absyntree::tokenizer->cycle_token();
         if(lex_analyzer::p_tok->keyword != KEYWORD::FI)
             throw syntax_error();
 
+        absyntree::tokenizer->cycle_token();
     }
 
     void print() override {
-        std::cout << "* IF: ";
+        std::cout << "*IF ";
         condition->print();
-        std::cout << " THEN";
+        std::cout << " THEN:\n";
         true_body->print();
 
         if(false_body != nullptr){
-            std::cout << "ELSE:";
+            std::cout << "*ELSE:\n";
             false_body->print();
         }
+
+        std::cout << "*FI";
 
     }
 

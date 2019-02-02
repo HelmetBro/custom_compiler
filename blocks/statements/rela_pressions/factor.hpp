@@ -17,10 +17,10 @@ class factor{
 private:
 
     //only one may be assigned
-    designator * des;
+    designator * des = nullptr;
     int number;
-    expression * exp;
-    function_call * func_call;
+    expression * exp = nullptr;
+    function_call * func_call = nullptr;
 
 public:
 

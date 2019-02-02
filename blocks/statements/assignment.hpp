@@ -13,8 +13,8 @@ class assignment : public statement {
 
 private:
 
-    designator * des;
-    expression * exp;
+    designator * des = nullptr;
+    expression * exp = nullptr;
 
 public:
 
@@ -22,7 +22,6 @@ public:
         des = new designator();
         absyntree::tokenizer->cycle_token(); //removing the '<-'
         exp = new expression();
-        absyntree::tokenizer->cycle_token(); //removing the ';'
     }
 
     void print() override {
