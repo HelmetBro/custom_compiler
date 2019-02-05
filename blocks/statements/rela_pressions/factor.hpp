@@ -14,15 +14,13 @@ class designator;
 class function_call;
 class factor{
 
-private:
+public:
 
     //only one may be assigned
     designator * des = nullptr;
     int number;
     expression * exp = nullptr;
     function_call * func_call = nullptr;
-
-public:
 
     factor();
 

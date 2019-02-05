@@ -14,15 +14,13 @@
 class term;
 class expression {
 
-private:
+public:
 
     term * initial_term = nullptr;
 
     //optional
     enum SYMBOL plus_minus;
     expression * optional_term = nullptr;
-
-public:
 
     expression();
 

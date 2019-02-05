@@ -7,7 +7,7 @@
 relation::relation(){
     left_expression = new expression();
 
-    relOp = static_cast<enum SYMBOL>(symbol_table.at(lex_analyzer::p_tok->input));
+    relOp = static_cast<enum SYMBOL>(lex_analyzer::p_tok->symbol);
     absyntree::tokenizer->cycle_token();
 
     right_expression = new expression();

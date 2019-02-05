@@ -14,12 +14,10 @@
 class expression;
 class function_call : public statement {
 
-private:
+public:
 
     std::string name;
     std::vector<expression * > arguments; //optional
-
-public:
 
     function_call();
 

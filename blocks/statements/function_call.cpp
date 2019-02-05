@@ -8,6 +8,8 @@
 
 function_call::function_call(){
 
+    type = STATEMENT_TYPE::FUNC_CALL;
+
     name = lex_analyzer::p_tok->input;
     absyntree::tokenizer->cycle_token();
 

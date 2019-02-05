@@ -70,11 +70,8 @@ statement * absyntree::construct_statement(){
 
 block * absyntree::make_absyntree(){
 
-    tokenizer->cycle_token();
+    tokenizer->cycle_token(); //get rid of "main"
     main = construct_block();
-    tokenizer->cycle_token();
-    if(lex_analyzer::p_tok->symbol != SYMBOL::PERIOD)
-        throw syntax_error();
 
     return main;
 }

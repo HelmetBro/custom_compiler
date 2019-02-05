@@ -13,13 +13,11 @@
 
 class main_block : public block {
 
-private:
+public:
 
     std::vector<var_dec_block *> variables;
     std::vector<function_block *> functions;
     body_block * body = nullptr; //"main" function
-
-public:
 
     explicit main_block(){
         type = BLOCK_TYPE::MAIN;

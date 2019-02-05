@@ -15,14 +15,12 @@
 class expression;
 class designator {
 
-private:
+public:
 
     std::string ident;
 
     //optional
     std::vector<expression *> exp;
-
-public:
 
     designator();
 

@@ -9,14 +9,12 @@
 
 class var_dec_block : public block {
 
-private:
+public:
 
     std::vector<int> numbers; //array position/dimension accessors
     std::vector<std::string> idents;
 
     bool is_array = false;
-
-public:
 
     std::vector<int> get_numbers(){
             return numbers;

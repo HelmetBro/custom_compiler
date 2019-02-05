@@ -21,6 +21,8 @@ public:
 
     if_statement(){
 
+        type = STATEMENT_TYPE::IF;
+
         //condition
         condition = new relation();
 

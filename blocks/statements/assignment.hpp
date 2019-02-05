@@ -11,14 +11,15 @@
 
 class assignment : public statement {
 
-private:
+public:
 
     designator * des = nullptr;
     expression * exp = nullptr;
 
-public:
-
     assignment(){
+
+        type = STATEMENT_TYPE::ASSIGNMENT;
+
         des = new designator();
         absyntree::tokenizer->cycle_token(); //removing the '<-'
         exp = new expression();

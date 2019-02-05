@@ -11,14 +11,14 @@
 
 class while_statement : public statement {
 
-private:
+public:
 
     relation * condition = nullptr;
     body_block * true_body = nullptr;
 
-public:
-
     while_statement(){
+
+        type = STATEMENT_TYPE::WHITE;
 
         //condition
         condition = new relation();

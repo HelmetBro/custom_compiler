@@ -11,6 +11,10 @@ class statement{
 
 public:
 
+    enum STATEMENT_TYPE {RETURN, WHITE, IF, ASSIGNMENT, FUNC_CALL};
+
+    STATEMENT_TYPE type;
+
     virtual void print() = 0;
 
 };

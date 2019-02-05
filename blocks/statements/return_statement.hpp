@@ -10,14 +10,15 @@
 
 class return_statement : public statement{
 
-private:
+public:
 
     //optional
     expression * exp = nullptr;
 
-public:
-
     return_statement(){
+
+        type = STATEMENT_TYPE::RETURN;
+
         if(lex_analyzer::p_tok->symbol != SYMBOL::R_BRACK && lex_analyzer::p_tok->type != TYPE::KEYWORD)
             exp = new expression();
     }

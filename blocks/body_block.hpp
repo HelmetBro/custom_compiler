@@ -11,11 +11,9 @@
 /* BODY BLOCK */
 class body_block : public block {
 
-private:
+public:
 
     std::vector<statement *> statements;
-
-public:
 
     explicit body_block(){
         this->type = BLOCK_TYPE::BODY;

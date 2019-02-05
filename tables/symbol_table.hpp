@@ -8,54 +8,54 @@
 #include "../token.hpp"
 #pragma once
 
-enum SYMBOL {
+enum class SYMBOL {
     E, NE, LT, LTE, GT, GTE, //relOp
     ADD, SUB, MUL, DIV, //arithmetic
     L_PAREN, R_PAREN, //()
     L_BRACE, R_BRACE, //[]
     L_BRACK, R_BRACK, //{}
     ASSIGN, SEMI, COMMA, PERIOD, // <- ; , .
-    COMMENT1, COMMENT2 // // or #
+    COMMENT1, COMMENT2, // // or #
     };
 
 static unsigned int NUM_COMMENT_SYMBOLS = 2;
 
-static std::unordered_map<std::string, int> symbol_table ({
-                                                                {"==", E},
-                                                                {"!=", NE},
-                                                                {"<", LT},
-                                                                {"<=", LTE},
-                                                                {">", GT},
-                                                                {">=", GTE},
+static std::unordered_map<std::string, enum SYMBOL> symbol_table ({
+                                                                {"==", SYMBOL::E},
+                                                                {"!=", SYMBOL::NE},
+                                                                {"<", SYMBOL::LT},
+                                                                {"<=", SYMBOL::LTE},
+                                                                {">", SYMBOL::GT},
+                                                                {">=", SYMBOL::GTE},
 
-                                                                {"+", ADD},
-                                                                {"-", SUB},
-                                                                {"*", MUL},
-                                                                {"/", DIV},
+                                                                {"+", SYMBOL::ADD},
+                                                                {"-", SYMBOL::SUB},
+                                                                {"*", SYMBOL::MUL},
+                                                                {"/", SYMBOL::DIV},
 
-                                                                {"(", L_PAREN},
-                                                                {")", R_PAREN},
-                                                                {"[", L_BRACE},
-                                                                {"]", R_BRACE},
-                                                                {"{", L_BRACK},
-                                                                {"}", R_BRACK},
+                                                                {"(", SYMBOL::L_PAREN},
+                                                                {")", SYMBOL::R_PAREN},
+                                                                {"[", SYMBOL::L_BRACE},
+                                                                {"]", SYMBOL::R_BRACE},
+                                                                {"{", SYMBOL::L_BRACK},
+                                                                {"}", SYMBOL::R_BRACK},
 
-                                                                {"<-", ASSIGN},
-                                                                {";", SEMI},
-                                                                {",", COMMA},
-                                                                {".", PERIOD},
+                                                                {"<-", SYMBOL::ASSIGN},
+                                                                {";", SYMBOL::SEMI},
+                                                                {",", SYMBOL::COMMA},
+                                                                {".", SYMBOL::PERIOD},
 
                                                                 //add comment symbols past this line.
-                                                                {"//", COMMENT1},
-                                                                {"#", COMMENT2}
+                                                                {"//", SYMBOL::COMMENT1},
+                                                                {"#", SYMBOL::COMMENT2}
                                                         });
 
 static bool is_symbol(token value){
-    std::unordered_map<std::string, int>::const_iterator has = symbol_table.find(value.input);
+    std::unordered_map<std::string, enum SYMBOL>::const_iterator has = symbol_table.find(value.input);
     return has != symbol_table.end();
 }
 
 static bool is_symbol(const std::string & value){
-    std::unordered_map<std::string, int>::const_iterator has = symbol_table.find(value);
+    std::unordered_map<std::string, enum SYMBOL>::const_iterator has = symbol_table.find(value);
     return has != symbol_table.end();
 }

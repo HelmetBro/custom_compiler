@@ -14,15 +14,13 @@
 class factor;
 class term{
 
-private:
+public:
 
     factor * initial_term = nullptr;
 
     //optional
     enum SYMBOL times_divide;
     term * optional_term = nullptr;
-
-public:
 
     term();
 

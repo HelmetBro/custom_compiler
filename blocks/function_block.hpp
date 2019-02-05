@@ -12,14 +12,12 @@
 /* FUNCTION BLOCK */
 class function_block : public block {
 
-private:
+public:
 
     std::string name;
     std::vector<std::string> parameters; //optional
     std::vector<var_dec_block *> variables;
     body_block * body = nullptr; //optional
-
-public:
 
     explicit function_block() {
         type = BLOCK_TYPE::FUNCTION;

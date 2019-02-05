@@ -10,12 +10,11 @@
 
 class relation{
 
-private:
+public:
+
     expression * left_expression = nullptr;
     enum SYMBOL relOp;
     expression * right_expression = nullptr;
-
-public:
 
     relation();
 
