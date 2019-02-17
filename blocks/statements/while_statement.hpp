@@ -8,6 +8,7 @@
 #include "statement.hpp"
 #include "rela_pressions/relation.hpp"
 #include "../body_block.hpp"
+#include "../../tables/keyword_table.hpp"
 
 class while_statement : public statement {
 
@@ -18,7 +19,7 @@ public:
 
     while_statement(){
 
-        type = STATEMENT_TYPE::WHITE;
+        type = STATEMENT_TYPE::WHILE;
 
         //condition
         condition = new relation();
@@ -27,7 +28,7 @@ public:
         true_body = new body_block();
 
         //at this point, should have "od"
-        if(lex_analyzer::p_tok->keyword != KEYWORD::OD)
+        if(lex_analyzer::p_tok->keyword != OD)
             throw syntax_error();
 
         absyntree::tokenizer->cycle_token();

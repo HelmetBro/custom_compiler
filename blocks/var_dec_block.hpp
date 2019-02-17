@@ -6,6 +6,7 @@
 #define VAR_DEC_BLOCK_H_
 
 #include "block.hpp"
+#include "../tables/symbol_table.hpp"
 
 class var_dec_block : public block {
 
@@ -29,7 +30,7 @@ public:
         absyntree::tokenizer->cycle_token();
 
         //must be a array[#] case
-        while(lex_analyzer::p_tok->symbol == SYMBOL::L_BRACE){
+        while(lex_analyzer::p_tok->symbol == L_BRACE){
             is_array = true;
             absyntree::tokenizer->cycle_token();
             numbers.push_back(lex_analyzer::p_tok->value);
@@ -42,13 +43,13 @@ public:
             absyntree::tokenizer->cycle_token();
 
             //gets the symbol after the identifier, break if its a semi-colon
-            if(lex_analyzer::p_tok->symbol == SYMBOL::SEMI)
+            if(lex_analyzer::p_tok->symbol == SEMI)
                 break;
 
             absyntree::tokenizer->cycle_token();
         }
 
-        if(lex_analyzer::p_tok->symbol != SYMBOL::SEMI)
+        if(lex_analyzer::p_tok->symbol != SEMI)
             throw syntax_error();
 
     }

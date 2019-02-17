@@ -3,6 +3,8 @@
 //
 
 #include "lex_analyzer.hpp"
+#include "tables/keyword_table.hpp"
+#include "tables/symbol_table.hpp"
 
 token * lex_analyzer::p_tok = nullptr;
 

@@ -22,15 +22,15 @@ block * absyntree::construct_block(){
     switch(lex_analyzer::p_tok->keyword){
 
         /* Cases where constructor is recursive. */
-        case KEYWORD::MAIN:
+        case MAIN:
             return new main_block();
 
-        case KEYWORD::VAR:
-        case KEYWORD::ARRAY:
+        case VAR:
+        case ARRAY:
             return new var_dec_block();
 
-        case KEYWORD::FUNCTION:
-        case KEYWORD::PROCEDURE: //KEYWORD::PROCEDURE | KEYWORD::FUNCTION
+        case FUNCTION:
+        case PROCEDURE: //KEYWORD::PROCEDURE | KEYWORD::FUNCTION
             return new function_block();
 
         default:

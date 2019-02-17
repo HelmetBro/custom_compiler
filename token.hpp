@@ -7,6 +7,7 @@
 
 #include <string>
 #include <iostream>
+#include "syntax_error_exception.hpp"
 
 enum TYPE {NUMBER, IDENTIFIER, KEYWORD, SYMBOL, NONE};
 
@@ -43,10 +44,11 @@ public:
             case KEYWORD: result += "keyword:'"; result += std::to_string(this->keyword); result += '\''; break;
             case IDENTIFIER: result += "identifier:'"; result += this->input; result += '\''; break;
             case SYMBOL: result += "symbol:'"; result += std::to_string(this->symbol); result += '\''; break;
+            default:
+                throw syntax_error();
         }
 
         return result += "];";
-
     }
 
 };

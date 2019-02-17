@@ -5,17 +5,18 @@
 #include "factor.hpp"
 #include "designator.hpp"
 #include "../../../lex_analyzer.hpp"
+#include "../../../tables/keyword_table.hpp"
 
 factor::factor(){
 
     if (lex_analyzer::p_tok->type == NUMBER){
         number = lex_analyzer::p_tok->value;
         absyntree::tokenizer->cycle_token();
-    } else if (lex_analyzer::p_tok->symbol == SYMBOL::L_PAREN){
+    } else if (lex_analyzer::p_tok->symbol == L_PAREN){
         absyntree::tokenizer->cycle_token();
         exp = new expression();
         absyntree::tokenizer->cycle_token();
-    } else if (lex_analyzer::p_tok->keyword == KEYWORD::CALL){
+    } else if (lex_analyzer::p_tok->keyword == CALL){
         absyntree::tokenizer->cycle_token();
         func_call = new function_call();
     } else if(lex_analyzer::p_tok->type == IDENTIFIER){

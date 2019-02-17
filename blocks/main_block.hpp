@@ -54,7 +54,7 @@ public:
         if(lex_analyzer::p_tok->symbol != L_BRACK)
             throw syntax_error();
 
-        //main function
+        //main body
         body = new body_block();
 
     }

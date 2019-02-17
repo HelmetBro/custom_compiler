@@ -1,7 +1,29 @@
 main
 var f, g;
 {
+    let f <- g;
+    let f <- g;
 
-    let f <- (5 + 3) * 4
+    while 3 > 5 do
+        call funcA;
+        call funcB;
 
+        if d > 4 then
+
+            if d > 4 then
+                return 4
+            else
+                return 9
+            fi
+
+        else
+            return 9
+        fi;
+
+        call funcB;
+        call funcB
+    od;
+
+    let f <- g;
+    let f <- g
 }.

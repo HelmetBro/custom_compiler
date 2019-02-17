@@ -8,7 +8,7 @@ term::term(){
 
     initial_term = new factor();
 
-    while(lex_analyzer::p_tok->symbol == SYMBOL::MUL || lex_analyzer::p_tok->symbol == SYMBOL::DIV){
+    while(lex_analyzer::p_tok->symbol == SYMBOL::MULTIPLICATION || lex_analyzer::p_tok->symbol == SYMBOL::DIVISION){
 
         //adding symbol
         times_divide = static_cast<enum SYMBOL>(lex_analyzer::p_tok->symbol);
@@ -30,7 +30,7 @@ void term::print(){
     initial_term->print();
 
     if(optional_term != nullptr){
-        std::cout << (times_divide == MUL ? "*" : "/");
+        std::cout << (times_divide == MULTIPLICATION ? "*" : "/");
         optional_term->print();
     }
 }

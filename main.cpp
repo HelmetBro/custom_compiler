@@ -16,7 +16,7 @@ static void print_token_vector(std::vector<token> path){
     std::cout << std::endl;
 }
 
-int main() {
+int main(int argc, char **argv) {
 
     //initialize tokenizer
 
@@ -47,7 +47,6 @@ int main() {
     block * start = tree.make_absyntree();
     tree.print_absyntree();
     IR_builder builder(start);
-    builder.construct_basic_blocks();
 
     return 0;
 }

@@ -11,50 +11,15 @@
 
 class if_statement : public statement {
 
-private:
+public:
 
     relation * condition = nullptr;
     body_block * true_body = nullptr;
     body_block * false_body = nullptr; //optional
 
-public:
+    if_statement();
 
-    if_statement(){
-
-        type = STATEMENT_TYPE::IF;
-
-        //condition
-        condition = new relation();
-
-        //true body
-        true_body = new body_block();
-
-        //optional false body
-        if(lex_analyzer::p_tok->keyword == KEYWORD::ELSE)
-            false_body = new body_block();
-
-        //at this point, should have "fi"
-        if(lex_analyzer::p_tok->keyword != KEYWORD::FI)
-            throw syntax_error();
-
-        absyntree::tokenizer->cycle_token();
-    }
-
-    void print() override {
-        std::cout << "*IF ";
-        condition->print();
-        std::cout << " THEN:\n";
-        true_body->print();
-
-        if(false_body != nullptr){
-            std::cout << "*ELSE:\n";
-            false_body->print();
-        }
-
-        std::cout << "*FI";
-
-    }
-
+    void print() override ;
 
 };
 

@@ -7,7 +7,6 @@
 
 //types are used in constructors
 #include "../token.hpp"
-#include "../tables/keyword_table.hpp"
 #include "../syntax_error_exception.hpp"
 
 #include <queue>

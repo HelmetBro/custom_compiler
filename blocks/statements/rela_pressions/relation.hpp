@@ -7,6 +7,7 @@
 
 #include "expression.hpp"
 #include "../../../tables/symbol_table.hpp"
+#include "../../../tables/mneumonic_table.hpp"
 
 class relation{
 
@@ -17,6 +18,9 @@ public:
     expression * right_expression = nullptr;
 
     relation();
+
+    //helper for IR code
+    IR_MNEMONIC inverse_condition();
 
     void print();
 

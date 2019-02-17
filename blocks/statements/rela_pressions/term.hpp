@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "factor.hpp"
-#include "../../../lex_analyzer.hpp"
 #include "../../../tables/symbol_table.hpp"
 
 class factor;
