@@ -12,6 +12,7 @@
 #include "blocks/statements/while_statement.hpp"
 
 #include "IR_parts/basic_block.hpp"
+#include "IR_parts/debug.hpp"
 
 class IR_builder{
 
@@ -26,7 +27,7 @@ private:
 public:
 
     void debug(){
-//        debug::graph(IR_start);
+        debug::graph(IR_start);
     }
 
     IR_builder(block * start){
@@ -44,28 +45,30 @@ public:
         construct_basic_blocks(IR_start, current_block);
     }
 
-    void construct_basic_blocks(basic_block * start_basic, body_block * current_body){
+    basic_block * construct_basic_blocks(basic_block * start_basic, body_block * current_body){
 
         //not taking care of functions for now +_*
 
         if(current_body != nullptr){
             for(auto s : current_body->statements){
                 statement_to_instructions(start_basic->instructions, s);
-                fill_body(start_basic, s);
+                start_basic = fill_body(start_basic, s);
             }
         }
 
         start_basic->print();
         std::cout << std::endl;
-
+        return start_basic;
     }
 
-    void fill_body(basic_block * current_block, statement * s){
+    basic_block * fill_body(basic_block * current_block, statement * s){
+
+        auto * ending = current_block;
 
         if(s->type == statement::STATEMENT_TYPE::IF){
 
             auto * if_stat = dynamic_cast<if_statement *>(s);
-            auto * ending = new basic_block();
+            ending = new basic_block();
 
             /*
              * The "initial" points to the true block (CMP condition fails), vice-versa.
@@ -74,13 +77,15 @@ public:
             //fill true case (CMP condition fails)
             current_block->initial = new basic_block();
             current_block->initial->initial = ending;
-            construct_basic_blocks(current_block->initial, if_stat->true_body);
+            construct_basic_blocks(current_block->initial, if_stat->true_body)->initial = ending;
 
             //fill false case (CMP condition succeeds)
-            if(if_stat->false_body != nullptr){
+            if(if_stat->false_body != nullptr){ //has else block
                 current_block->alternate = new basic_block();
                 current_block->alternate->initial = ending;
-                construct_basic_blocks(current_block->alternate, if_stat->false_body);
+                construct_basic_blocks(current_block->alternate, if_stat->false_body)->initial = ending;
+            } else { //does not have else block
+                current_block->alternate = ending;
             }
 
         }
@@ -88,7 +93,7 @@ public:
         if(s->type == statement::STATEMENT_TYPE::WHILE){
 
             auto * while_stat = dynamic_cast<while_statement *>(s);
-            auto * ending = new basic_block();
+            ending = new basic_block();
 
             /*
              * The "initial" points to the true block (CMP condition fails), vice-versa.
@@ -96,17 +101,16 @@ public:
 
             //fill true case (CMP condition fails)
             current_block->initial = new basic_block();
-            current_block->initial->initial = current_block; //loop around
-            construct_basic_blocks(current_block->initial, while_stat->true_body);
+            construct_basic_blocks(current_block->initial, while_stat->true_body)->initial = current_block;
 
             //fill false case (CMP condition succeeds)
-            current_block->alternate = new basic_block(); //ending block
+            current_block->alternate = ending; //ending block
 
         }
 
+        return ending;
     }
 
-    //Returns true if hits a while, if, or any branching thing
     void statement_to_instructions(std::vector<instruction> &instructions, statement * s){
 
         switch(s->type){

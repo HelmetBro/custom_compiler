@@ -7,6 +7,7 @@
 
 #include <string>
 #include <iostream>
+
 #include "../blocks/statements/rela_pressions/factor.hpp"
 
 struct argument{
@@ -17,66 +18,15 @@ struct argument{
     std::string var; //only used if type is a var
     int value; //either a constant, instruction number, or version
 
-    explicit argument(factor * fact){
+    explicit argument(factor * fact);
 
-        if(fact->des != nullptr){ //not doing arrays atm
-            type = VAR;
-            var = fact->des->ident;
-        }
+    argument(int value, ARG_TYPE type);
 
-        else if(fact->func_call != nullptr){
-            type = FUNC_CALL;
-            var = fact->func_call->name;
-        }
+    argument(std::string var, ARG_TYPE type);
 
-        else {
-            type = CONST;
-            value = fact->number;
-        }
-    }
+    void print();
 
-    argument(int value, ARG_TYPE type){
-        this->value = value;
-        this->type = type;
-    }
-
-    argument(std::string var, ARG_TYPE type){
-        this->var = var;
-        this->type = type;
-    }
-
-    void print(){
-
-        switch (type){
-            case CONST: std::cout << "#" << value << " ";
-                break;
-            case INSTRUCT: std::cout << "(" << value << ") ";
-                break;
-            case VAR: std::cout << "%" << var << " ";
-                break;
-            default:
-                std::cout << "!" << var << " ";
-        }
-    }
-
-    std::string to_string(){
-
-        std::string out;
-
-        switch (type){
-            case CONST: out += "#" + std::to_string(value) + " ";
-                break;
-            case INSTRUCT: out += "(" + std::to_string(value) + ") ";
-                break;
-            case VAR: out += "%" + var + " ";
-                break;
-            default:
-                out += "!" + var + " ";
-        }
-
-        return out;
-
-    }
+    std::string to_string();
 
 };
 

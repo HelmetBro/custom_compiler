@@ -11,22 +11,26 @@ class debug {
 
 private:
 
-    std::ofstream diagram;
+    static std::ofstream diagram;
 
-    std::string nodes;
-    std::string connections;
+    static std::string nodes;
+    static std::string connections;
 
-    void DFS_link_nodes(basic_block * start_block);
-    void link_node(basic_block * start_block);
+    static std::vector<unsigned long> visited_nodes;
 
-    void DFS_fill_nodes(basic_block * start_block);
-    void create_node(basic_block * block);
+    static void DFS_link_nodes(basic_block * start_block);
+    static void link_node(basic_block * start_block);
+
+    static void DFS_fill_nodes(basic_block * start_block);
+    static void create_node(basic_block * block);
+
+    static bool visited_contains(unsigned long element);
 
 public:
 
-    void graph(basic_block * start_block);
+    static void graph(basic_block * start_block);
 
-    void open();
+    static void open();
 
 };
 

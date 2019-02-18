@@ -41,12 +41,13 @@ int main(int argc, char **argv) {
 //
 //    }
 
-    lex_analyzer lex("../TEST.txt");
-    //pass tokenizer into tree, and make the parse tree
+    lex_analyzer lex("../test_programs/test007.txt");
+//    lex_analyzer lex("../TEST.txt");
     absyntree tree(&lex);
     block * start = tree.make_absyntree();
     tree.print_absyntree();
     IR_builder builder(start);
+    builder.debug();
 
     return 0;
 }

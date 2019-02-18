@@ -20,17 +20,10 @@ public:
 
     std::vector<instruction> instructions;
 
-    explicit basic_block(){
-        this->node_num = current_node_num++;
-    }
+    explicit basic_block();
 
-    void print(){
-        for(auto i : instructions)
-            i.print();
-    }
+    void print();
 
 };
-
-unsigned long basic_block::current_node_num = 0;
 
 #endif
