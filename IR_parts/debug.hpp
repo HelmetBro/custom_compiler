@@ -18,19 +18,25 @@ private:
 
     static std::vector<unsigned long> visited_nodes;
 
-    static void DFS_link_nodes(basic_block * start_block);
+    /* PT = Preorder traversal. */
+
+    static void PT_link_nodes(basic_block *start_block);
     static void link_node(basic_block * start_block);
 
-    static void DFS_fill_nodes(basic_block * start_block);
+    static void PT_fill_nodes(basic_block *start_block);
     static void create_node(basic_block * block);
 
+    static std::string PT_dom_nodes(std::unordered_map<unsigned long, std::vector<unsigned long>> dom_tree);
+
+    //helper
     static bool visited_contains(unsigned long element);
 
 public:
 
-    static void graph(basic_block * start_block);
+    static void graph(basic_block * start_block, std::unordered_map<unsigned long,
+            std::vector<unsigned long>> dom_tree, std::string num, bool = true);
 
-    static void open();
+    static void open(std::string num);
 
 };
 

@@ -1,7 +1,7 @@
 main
 var f, g;
 {
-    while 3 > 5 do
+    if 3 > 5 then
 
         while a < g do
             let i <- 5
@@ -9,7 +9,7 @@ var f, g;
 
         let after <- asd
 
-     od
+    fi;
 
     let new <- 123
 }.

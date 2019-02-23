@@ -15,6 +15,10 @@ public:
     unsigned long node_num;
 
     //optional
+//    basic_block * father = nullptr;
+//    basic_block * mother = nullptr;
+
+    //optional
     basic_block * initial = nullptr; //the "true" case
     basic_block * alternate = nullptr; //the "false" case
 

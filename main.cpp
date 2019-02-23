@@ -20,34 +20,26 @@ int main(int argc, char **argv) {
 
     //initialize tokenizer
 
-//    for(int i = 1; i <= 9; i++){
-//        std::string file = "../test_programs/test00";
-//        file += std::to_string(i);
-//        file += ".txt";
-//        lex_analyzer lex(file);
-//        absyntree tree(&lex);
-//        tree.make_absyntree();
-//        tree.print_absyntree();
-//    }
-//
-//    for(int i = 10; i <= 31; i++){
-//        std::string file = "../test_programs/test0";
-//        file += std::to_string(i);
-//        file += ".txt";
-//        lex_analyzer lex(file);
-//        absyntree tree(&lex);
-//        tree.make_absyntree();
-//        tree.print_absyntree();
-//
-//    }
+    for(int i = 1; i <= 31; i++){
+        std::string file = "../test_programs/test0";
+        file += (i < 10 ? "0" : "");
+        file += std::to_string(i);
+        file += ".txt";
 
-    lex_analyzer lex("../test_programs/test007.txt");
-//    lex_analyzer lex("../TEST.txt");
-    absyntree tree(&lex);
-    block * start = tree.make_absyntree();
-    tree.print_absyntree();
-    IR_builder builder(start);
-    builder.debug();
+        lex_analyzer lex(file);
+        absyntree tree(&lex);
+        block * start = tree.make_absyntree();
+        tree.print_absyntree();
+        IR_builder builder(start);
+
+        //make starting IR
+        builder.build_initial_IR();
+
+        //add dominator tree
+        builder.build_dominator_tree();
+
+        builder.debug(std::to_string(i));
+    }
 
     return 0;
 }

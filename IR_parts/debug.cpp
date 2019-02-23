@@ -12,35 +12,35 @@ std::string debug::connections;
 
 std::vector<unsigned long> debug::visited_nodes;
 
-void debug::DFS_link_nodes(basic_block *start_block){
+void debug::PT_link_nodes(basic_block *start_block){
     link_node(start_block);
     visited_nodes.push_back(start_block->node_num);
 
     if(start_block->initial && !visited_contains(start_block->initial->node_num))
-        DFS_link_nodes(start_block->initial);
+        PT_link_nodes(start_block->initial);
     if(start_block->alternate && !visited_contains(start_block->alternate->node_num))
-        DFS_link_nodes(start_block->alternate);
+        PT_link_nodes(start_block->alternate);
 }
 
 void debug::link_node(basic_block * start_block){
 
     if(start_block->initial)
         connections += "\t" + std::to_string(start_block->node_num) + " -> " +
-                       std::to_string(start_block->initial->node_num) + " [weight=10, color=deepskyblue4]\n";
+                       std::to_string(start_block->initial->node_num) + " [weight=100, color=deepskyblue4]\n";
 
     if(start_block->alternate)
         connections += "\t" + std::to_string(start_block->node_num) + " -> " +
-                       std::to_string(start_block->alternate->node_num) + " [weight=10, color=red]\n";
+                       std::to_string(start_block->alternate->node_num) + " [weight=100, color=red]\n";
 }
 
-void debug::DFS_fill_nodes(basic_block *start_block){
+void debug::PT_fill_nodes(basic_block *start_block){
     create_node(start_block);
     visited_nodes.push_back(start_block->node_num);
 
     if(start_block->initial && !visited_contains(start_block->initial->node_num))
-        DFS_fill_nodes(start_block->initial);
+        PT_fill_nodes(start_block->initial);
     if(start_block->alternate && !visited_contains(start_block->alternate->node_num))
-        DFS_fill_nodes(start_block->alternate);
+        PT_fill_nodes(start_block->alternate);
 }
 
 void debug::create_node(basic_block * block){
@@ -52,26 +52,55 @@ void debug::create_node(basic_block * block){
     nodes += "\"];\n";
 }
 
-void debug::graph(basic_block * start_block){
+static std::string vec_to_string(std::vector<unsigned long> vec){
 
-    diagram.open("graphIR.dot");
-    diagram << "digraph {\n\tnode [shape=rectangle];\n\n"; //header
+    std::string out;
 
-    //any search here doesn't matter
-    visited_nodes.clear();
-    DFS_fill_nodes(start_block);
-    visited_nodes.clear();
-    DFS_link_nodes(start_block);
+    unsigned long size = vec.size();
 
-    diagram << nodes << connections << "}";
-    diagram.close();
+    for(unsigned long i = 0; i < size - 1; i++)
+        out += std::to_string(vec[i]) + ", ";
 
-    //create pdf file and open
-    system("dot -Tpdf graphIR.dot -O && open graphIR.dot.pdf");
+    out += (vec.size() - 1 >= 0) ? std::to_string(vec[size - 1]) : "";
+
+    return out;
 }
 
-static void open(){
+std::string debug::PT_dom_nodes(std::unordered_map<unsigned long, std::vector<unsigned long>> dom_tree){
 
+    std::string dominators;
+    for(auto i = 0; i < dom_tree.size(); i++)
+        if(!dom_tree[i].empty())
+            dominators += "\t" + std::to_string(i) + " -> " + vec_to_string(dom_tree[i]) + " [weight=100, color=green]\n";
+
+    return dominators;
+}
+
+void debug::graph(basic_block * start_block, std::unordered_map<unsigned long,
+        std::vector<unsigned long>> dom_tree, std::string num, bool dominators){
+
+    std::string command = "graphIR" + num + ".dot";
+    diagram.open(command);
+    diagram << "digraph {\n\tnode [shape=rectangle];\n"; //header
+
+    nodes.clear();
+    connections.clear();
+
+    //PT = preorder traversal.
+    visited_nodes.clear();
+    PT_fill_nodes(start_block);
+    visited_nodes.clear();
+    PT_link_nodes(start_block);
+
+    diagram << nodes << connections << (dominators ? PT_dom_nodes(dom_tree) : "" ) << "}";
+    diagram.close();
+}
+
+void debug::open(std::string num){
+    //create pdf file and open
+    std::string command = "dot -Tpdf ";
+    command += "graphIR" + num + ".dot -O";
+    system(command.c_str());
 }
 
 bool debug::visited_contains(unsigned long element){
