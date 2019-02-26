@@ -57,6 +57,12 @@ public:
                 version_table.insert(std::pair<std::string, int>(ident, 0));
 
         //store function stuff later
+
+        //resets
+        instruction::instruction_counter = 0;
+        basic_block::current_node_num = 0;
+
+        //build!
         IR_start = new basic_block();
     }
 

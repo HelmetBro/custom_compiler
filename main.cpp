@@ -41,5 +41,21 @@ int main(int argc, char **argv) {
         builder.debug(std::to_string(i));
     }
 
+
+//    std::string file = "../TEST.txt";
+//    lex_analyzer lex(file);
+//    absyntree tree(&lex);
+//    block * start = tree.make_absyntree();
+//    tree.print_absyntree();
+//    IR_builder builder(start);
+//
+//    //make starting IR
+//    builder.build_initial_IR();
+//
+//    //add dominator tree
+//    builder.build_dominator_tree();
+//
+//    builder.debug(std::to_string(0));
+
     return 0;
 }

@@ -1,15 +1,9 @@
 main
 var f, g;
 {
-    if 3 > 5 then
-
-        while a < g do
-            let i <- 5
-        od;
+    while 3 > 5 do
 
         let after <- asd
 
-    fi;
-
-    let new <- 123
+    od
 }.
