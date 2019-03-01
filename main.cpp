@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
         lex_analyzer lex(file);
         absyntree tree(&lex);
         block * start = tree.make_absyntree();
-        tree.print_absyntree();
+//        tree.print_absyntree();
         IR_builder builder(start);
 
         //make starting IR
@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
         //add dominator tree
         builder.build_dominator_tree();
 
-        builder.debug(std::to_string(i));
+        builder.debug(std::to_string(i), true, true);
     }
 
 
@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
 //    lex_analyzer lex(file);
 //    absyntree tree(&lex);
 //    block * start = tree.make_absyntree();
-//    tree.print_absyntree();
+////    tree.print_absyntree();
 //    IR_builder builder(start);
 //
 //    //make starting IR
@@ -55,7 +55,8 @@ int main(int argc, char **argv) {
 //    //add dominator tree
 //    builder.build_dominator_tree();
 //
-//    builder.debug(std::to_string(0));
+//    //dominators, parents
+//    builder.debug(std::to_string(0), true, true);
 
     return 0;
 }

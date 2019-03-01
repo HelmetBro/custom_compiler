@@ -16,8 +16,7 @@
 #include "IR_parts/basic_block.hpp"
 #include "IR_parts/debug.hpp"
 
-typedef unsigned long ulong;
-typedef std::unordered_map<ulong, std::vector<ulong>> map;
+typedef std::unordered_map<basic_block*, std::vector<basic_block*>> map;
 
 class IR_builder{
 
@@ -31,20 +30,19 @@ private:
 
     //int types are node numbers
     map dominator_tree;
-    std::vector<ulong> visited_nodes; //helps with building dom tree
 
-    bool contains(std::vector<ulong> &list, const ulong &element){
-        return std::find(list.begin(), list.end(), element) != list.end();
-    }
+//    bool contains(const std::vector<basic_block*> &list, const basic_block* block){
+//        return std::find(list.begin(), list.end(), block) != list.end();
+//    }
 
-    bool contains(map &list, ulong element){
-        return list.find(element) != list.end();
+    bool contains(const map &list, basic_block* block){
+        return list.find(block) != list.end();
     }
 
 public:
 
-    void debug(const std::string &num){
-        debug::graph(IR_start, dominator_tree, num);
+    void debug(const std::string &num, bool doms, bool parents){
+        debug::graph(IR_start, dominator_tree, num, doms, parents);
         debug::open(num);
     }
 
@@ -70,18 +68,8 @@ public:
     void build_dominator_tree(){
 
         dominator_tree.clear();
-
-        //add all nodes to tree, with first dominator being itself
-        for(ulong i = 0; i < basic_block::current_node_num; i++){
-            dominator_tree.insert(std::pair<ulong, std::vector<ulong>>(i, std::vector<ulong>()));
-            dominator_tree[i].push_back(i);
-        }
-
-        //construct father dominators
-        map points_to = dominator_tree; //deep copy
-
-        visited_nodes.clear();
-        create_points_to(IR_start, points_to);
+        populate_map_with_nodes(IR_start, dominator_tree);
+//        dominator_tree.begin()->second.push_back(dominator_tree.begin()->first);
 
         //O(n^4). yeah. kill me. works for now, refactoring later. i can do better than this
         bool change;
@@ -89,27 +77,35 @@ public:
 
             change = false;
 
-            //iterate over dominator graph
-            for(ulong inode = 0; inode < basic_block::current_node_num; ++inode){
+            for(const auto &key : dominator_tree){
+                std::vector<basic_block *> parents = get_parents(key.first);
+                std::vector<basic_block *> intersection = intersection_of_parent_doms(parents);
 
-                //elements that point to dominator index
-                std::vector<ulong> references = elements_that_point_to(points_to, inode);
-                std::vector<ulong> intersection = intersection_of_dominators_of_references(references, inode);
+//                intersection.push_back(key.first);
 
-                intersection.push_back(inode);
-
-                if(intersection != dominator_tree[inode]){
-                    dominator_tree[inode] = intersection;
+                if(intersection != key.second){
+                    dominator_tree[key.first] = intersection;
                     change = true;
                 }
+
             }
 
         }while(change);
 
     }
 
-    std::vector<ulong> intersection(std::vector<ulong> &v1, std::vector<ulong> &v2){
-        std::vector<ulong> v3;
+    void populate_map_with_nodes(basic_block* block, std::unordered_map<basic_block*, std::vector<basic_block*>> &dominator_tree){
+
+        dominator_tree.insert({block, std::vector<basic_block*>()});
+
+        if(block->initial && !contains(dominator_tree, block->initial))
+            populate_map_with_nodes(block->initial, dominator_tree);
+        if(block->alternate && !contains(dominator_tree, block->alternate))
+            populate_map_with_nodes(block->alternate, dominator_tree);
+    }
+
+    std::vector<basic_block*> intersection(std::vector<basic_block*> &v1, std::vector<basic_block*> &v2){
+        std::vector<basic_block*> v3;
 
         std::sort(v1.begin(), v1.end());
         std::sort(v2.begin(), v2.end());
@@ -120,91 +116,84 @@ public:
         return v3;
     }
 
-    std::vector<ulong> intersection_of_dominators_of_references(std::vector<ulong> &references, ulong inode){
+    std::vector<basic_block *> intersection_of_parent_doms(std::vector<basic_block *> &parents){
 
-        if(references.empty())
-            return std::vector<ulong>(); //dominator_tree[inode];
-        if(references.size() == 1)
-            return dominator_tree[references[0]];
+        if(parents.empty())
+            return std::vector<basic_block *>();
 
-        std::vector<ulong> doms1 = dominator_tree[references[0]];
-        std::vector<ulong> doms2 = dominator_tree[references[1]];
+        if(parents.size() == 1)
+            return parents;
+
+        std::vector<basic_block*> doms1 = dominator_tree[parents[0]];
+        std::vector<basic_block*> doms2 = dominator_tree[parents[1]];
 
         return intersection(doms1, doms2);
     }
 
-    std::vector<ulong> elements_that_point_to(const map &points_to, ulong inode){
+    std::vector<basic_block *> get_parents(const basic_block* block){
 
-        std::vector<ulong> elements;
+        std::vector<basic_block *> elements;
 
-        for(const auto &i : points_to){
-
-            std::vector<ulong> element_set = i.second;
-
-            if(contains(element_set, inode) && i.first < inode){
-
-                elements.push_back(i.first);
-
-            }
-
-        }
+        if(block->father)
+            elements.push_back(block->father);
+        if(block->mother)
+            elements.push_back(block->father);
 
         return elements;
     }
 
-    void create_points_to(basic_block *block, map &points_to){
-
-        if(block->initial)
-            points_to[block->node_num].push_back(block->initial->node_num);
-        if(block->alternate)
-            points_to[block->node_num].push_back(block->alternate->node_num);
-
-        //recurse
-        visited_nodes.push_back(block->node_num);
-        if(block->initial && !contains(visited_nodes, block->initial->node_num))
-            create_points_to(block->initial, points_to);
-        if(block->alternate && !contains(visited_nodes, block->alternate->node_num))
-            create_points_to(block->alternate, points_to);
-    }
-
-    void populate_nodes(basic_block *block){
-
-        //all my predecessors dominators are my dominators
-        visited_nodes.push_back(block->node_num);
-        for(ulong i = 0; i < basic_block::current_node_num; i++){
-
-            if(i == block->node_num)
-                continue;
-
-            if(contains(dominator_tree[i], block->node_num))
-                dominator_tree[block->node_num].push_back(i);
-
-        }
-
-        //fill map with all reachable nodes per every node
-        if(block->initial && !contains(visited_nodes, block->initial->node_num))
-            populate_nodes(block->initial);
-        if(block->alternate && !contains(visited_nodes, block->alternate->node_num))
-            populate_nodes(block->alternate);
-    }
+//    void create_points_to(basic_block *block, map &points_to){
+//
+//        if(block->initial)
+//            points_to[block->node_num].push_back(block->initial->node_num);
+//        if(block->alternate)
+//            points_to[block->node_num].push_back(block->alternate->node_num);
+//
+//        //recurse
+//        visited_nodes.push_back(block->node_num);
+//        if(block->initial && !contains(visited_nodes, block->initial->node_num))
+//            create_points_to(block->initial, points_to);
+//        if(block->alternate && !contains(visited_nodes, block->alternate->node_num))
+//            create_points_to(block->alternate, points_to);
+//    }
+//
+//    void populate_nodes(basic_block *block){
+//
+//        //all my predecessors dominators are my dominators
+//        visited_nodes.push_back(block->node_num);
+//        for(ulong i = 0; i < basic_block::current_node_num; i++){
+//
+//            if(i == block->node_num)
+//                continue;
+//
+//            if(contains(dominator_tree[i], block->node_num))
+//                dominator_tree[block->node_num].push_back(i);
+//
+//        }
+//
+//        //fill map with all reachable nodes per every node
+//        if(block->initial && !contains(visited_nodes, block->initial->node_num))
+//            populate_nodes(block->initial);
+//        if(block->alternate && !contains(visited_nodes, block->alternate->node_num))
+//            populate_nodes(block->alternate);
+//    }
 
     //recurse over every sub-node
-    void reachable_nodes(basic_block * block, std::vector<ulong> * list){
-
-        if(block->initial && std::find(list->begin(), list->end(), block->initial->node_num) == list->end()){
-            list->push_back(block->initial->node_num);
-            reachable_nodes(block->initial, list);
-        }
-
-        if(block->alternate && std::find(list->begin(), list->end(), block->alternate->node_num) == list->end()){
-            list->push_back(block->alternate->node_num);
-            reachable_nodes(block->alternate, list);
-        }
-
-    }
+//    void reachable_nodes(basic_block * block, std::vector<ulong> * list){
+//
+//        if(block->initial && std::find(list->begin(), list->end(), block->initial->node_num) == list->end()){
+//            list->push_back(block->initial->node_num);
+//            reachable_nodes(block->initial, list);
+//        }
+//
+//        if(block->alternate && std::find(list->begin(), list->end(), block->alternate->node_num) == list->end()){
+//            list->push_back(block->alternate->node_num);
+//            reachable_nodes(block->alternate, list);
+//        }
+//
+//    }
 
     void build_initial_IR(){
-        basic_block::current_node_num = 0;
         construct_basic_blocks(IR_start, dynamic_cast<main_block *>(AST_start)->body);
     }
 
@@ -219,8 +208,8 @@ public:
             }
         }
 
-        start_basic->print();
-        std::cout << std::endl;
+//        start_basic->print();
+//        std::cout << std::endl;
         return start_basic;
     }
 
@@ -229,9 +218,9 @@ public:
         auto * ending = current_block;
 
         if(s->type == statement::STATEMENT_TYPE::IF){
-
             auto * if_stat = dynamic_cast<if_statement *>(s);
-            ending = new basic_block();
+
+            ending = new basic_block(); //node num not correctly updating
 
             /*
              * The "initial" points to the true block (CMP condition fails), vice-versa.
@@ -239,23 +228,28 @@ public:
 
             //fill true case (CMP condition fails)
             current_block->initial = new basic_block();
-//            current_block->initial->initial = ending;
-            construct_basic_blocks(current_block->initial, if_stat->true_body)->initial = ending;
+            current_block->initial->father = current_block;
+            auto deepest_init = construct_basic_blocks(current_block->initial, if_stat->true_body);
+            deepest_init->initial = ending;
+            ending->father = deepest_init;
 
             //fill false case (CMP condition succeeds)
             if(if_stat->false_body != nullptr){ //has else block
                 current_block->alternate = new basic_block();
-//                current_block->alternate->initial = ending;
-                construct_basic_blocks(current_block->alternate, if_stat->false_body)->initial = ending;
+                current_block->alternate->father = current_block;
+                auto deepest_alt = construct_basic_blocks(current_block->alternate, if_stat->false_body);
+                deepest_alt->initial = ending;
+                ending->mother = deepest_alt;
             } else { //does not have else block
                 current_block->alternate = ending;
+                ending->mother = current_block;
             }
 
         }
 
         if(s->type == statement::STATEMENT_TYPE::WHILE){
-
             auto * while_stat = dynamic_cast<while_statement *>(s);
+
             ending = new basic_block();
 
             /*
@@ -264,10 +258,13 @@ public:
 
             //fill true case (CMP condition fails)
             current_block->initial = new basic_block();
-            construct_basic_blocks(current_block->initial, while_stat->true_body)->initial = current_block;
+            current_block->initial->father = current_block;
+            auto deepest = construct_basic_blocks(current_block->initial, while_stat->true_body);
+            deepest->initial = current_block;
 
             //fill false case (CMP condition succeeds)
             current_block->alternate = ending; //ending block
+            ending->father = current_block;
 
         }
 

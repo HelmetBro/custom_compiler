@@ -1,9 +1,15 @@
+// Basic while statement test
 main
-var f, g;
+var a, b, c;
 {
-    while 3 > 5 do
-
-        let after <- asd
-
-    od
+	let a <- 1;
+	let b <- 2;
+	let c <- 3;
+	while a < b do
+		let a <- a + 1
+	od;
+	let gdfasdfasdf <- 3;
+	call OutputNum(a);
+	call OutputNum(b);
+	call OutputNum(c)
 }.
