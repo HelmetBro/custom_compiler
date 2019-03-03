@@ -11,6 +11,7 @@
 #include "../blocks/statements/rela_pressions/factor.hpp"
 
 struct argument{
+
     enum ARG_TYPE {CONST, INSTRUCT, VAR, FUNC_CALL};
 
     ARG_TYPE type;

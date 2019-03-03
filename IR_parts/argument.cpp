@@ -27,6 +27,7 @@ argument::argument(int value, ARG_TYPE type){
     this->type = type;
 }
 
+//variables have versioning, strings append to that versioning!
 argument::argument(std::string var, ARG_TYPE type){
     this->var = var;
     this->type = type;

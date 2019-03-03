@@ -8,7 +8,7 @@ var a, b, c;
 	while a < b do
 		let a <- a + 1
 	od;
-	let gdfasdfasdf <- 3;
+	let b <- 3;
 	call OutputNum(a);
 	call OutputNum(b);
 	call OutputNum(c)

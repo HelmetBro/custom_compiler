@@ -15,6 +15,7 @@
 
 #include "IR_parts/basic_block.hpp"
 #include "IR_parts/debug.hpp"
+#include "IR_parts/passes/SSA.hpp"
 
 typedef std::unordered_map<basic_block*, std::vector<basic_block*>> map;
 
@@ -30,10 +31,6 @@ private:
 
     //int types are node numbers
     map dominator_tree;
-
-//    bool contains(const std::vector<basic_block*> &list, const basic_block* block){
-//        return std::find(list.begin(), list.end(), block) != list.end();
-//    }
 
     bool contains(const map &list, basic_block* block){
         return list.find(block) != list.end();
@@ -69,7 +66,6 @@ public:
 
         dominator_tree.clear();
         populate_map_with_nodes(IR_start, dominator_tree);
-//        dominator_tree.begin()->second.push_back(dominator_tree.begin()->first);
 
         //O(n^4). yeah. kill me. works for now, refactoring later. i can do better than this
         bool change;
@@ -80,8 +76,6 @@ public:
             for(const auto &key : dominator_tree){
                 std::vector<basic_block *> parents = get_parents(key.first);
                 std::vector<basic_block *> intersection = intersection_of_parent_doms(parents);
-
-//                intersection.push_back(key.first);
 
                 if(intersection != key.second){
                     dominator_tree[key.first] = intersection;
@@ -141,57 +135,6 @@ public:
 
         return elements;
     }
-
-//    void create_points_to(basic_block *block, map &points_to){
-//
-//        if(block->initial)
-//            points_to[block->node_num].push_back(block->initial->node_num);
-//        if(block->alternate)
-//            points_to[block->node_num].push_back(block->alternate->node_num);
-//
-//        //recurse
-//        visited_nodes.push_back(block->node_num);
-//        if(block->initial && !contains(visited_nodes, block->initial->node_num))
-//            create_points_to(block->initial, points_to);
-//        if(block->alternate && !contains(visited_nodes, block->alternate->node_num))
-//            create_points_to(block->alternate, points_to);
-//    }
-//
-//    void populate_nodes(basic_block *block){
-//
-//        //all my predecessors dominators are my dominators
-//        visited_nodes.push_back(block->node_num);
-//        for(ulong i = 0; i < basic_block::current_node_num; i++){
-//
-//            if(i == block->node_num)
-//                continue;
-//
-//            if(contains(dominator_tree[i], block->node_num))
-//                dominator_tree[block->node_num].push_back(i);
-//
-//        }
-//
-//        //fill map with all reachable nodes per every node
-//        if(block->initial && !contains(visited_nodes, block->initial->node_num))
-//            populate_nodes(block->initial);
-//        if(block->alternate && !contains(visited_nodes, block->alternate->node_num))
-//            populate_nodes(block->alternate);
-//    }
-
-    //recurse over every sub-node
-//    void reachable_nodes(basic_block * block, std::vector<ulong> * list){
-//
-//        if(block->initial && std::find(list->begin(), list->end(), block->initial->node_num) == list->end()){
-//            list->push_back(block->initial->node_num);
-//            reachable_nodes(block->initial, list);
-//        }
-//
-//        if(block->alternate && std::find(list->begin(), list->end(), block->alternate->node_num) == list->end()){
-//            list->push_back(block->alternate->node_num);
-//            reachable_nodes(block->alternate, list);
-//        }
-//
-//    }
 
     void build_initial_IR(){
         construct_basic_blocks(IR_start, dynamic_cast<main_block *>(AST_start)->body);
@@ -403,6 +346,13 @@ public:
             return arg1;
 
         return new argument(tuh->initial_term);
+    }
+
+    /** PASSES! */
+
+    void ssa(){
+        //pass IR_start through SSA static calls
+        SSA::ssa(IR_start, version_table);
     }
 
 };
