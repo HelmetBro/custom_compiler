@@ -15,4 +15,4 @@ add_executable(241Compiler main.cpp token.hpp lex_analyzer.hpp tables/symbol_tab
         blocks/statements/rela_pressions/term.cpp blocks/statements/rela_pressions/expression.cpp
         blocks/statements/rela_pressions/relation.cpp blocks/statements/rela_pressions/designator.cpp
         blocks/statements/function_call.cpp lex_analyzer.cpp IR_builder.hpp tables/mneumonic_table.hpp
-        blocks/statements/if_statement.cpp IR_parts/debug.hpp IR_parts/debug.cpp IR_parts/basic_block.hpp IR_parts/instruction.hpp IR_parts/argument.hpp IR_parts/instruction.cpp IR_parts/basic_block.cpp IR_parts/argument.cpp IR_parts/passes/SSA.hpp)
+        blocks/statements/if_statement.cpp IR_parts/debug.hpp IR_parts/debug.cpp IR_parts/basic_block.hpp IR_parts/instruction.hpp IR_parts/argument.hpp IR_parts/instruction.cpp IR_parts/basic_block.cpp IR_parts/argument.cpp IR_parts/passes/SSA.hpp blocks/statements/end_statement.hpp)

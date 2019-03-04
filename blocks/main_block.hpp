@@ -10,6 +10,7 @@
 #include "function_block.hpp"
 #include "body_block.hpp"
 #include "../lex_analyzer.hpp"
+#include "statements/end_statement.hpp"
 
 class main_block : public block {
 
@@ -56,6 +57,10 @@ public:
 
         //main body
         body = new body_block();
+
+        //adding ending statement
+        auto end = new end_statement();
+        body->statements.push_back(end);
 
     }
 

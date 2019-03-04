@@ -36,24 +36,24 @@ private:
         visited.push_back(block->node_num);
         version_assignments(block);
 
+        if(block->initial != nullptr && block != block->initial->mother)
+            variable_versioning(block->initial);
+
         //if it branches
         if(block->alternate != nullptr)
             variable_versioning(block->alternate);
-
-        if(block->initial != nullptr && block != block->initial->mother)
-            variable_versioning(block->initial);
 
     }
 
     static void version_assignments(basic_block * block){
 
-//        for (auto &instruction : block->instructions)
-//            instruction.arguments.begin()->var =
-//                    version_it(instruction.arguments.begin()->var, instruction.operation);
-
-        for(auto &e : block->instructions)
-            if(e.arguments.begin()->type == argument::ARG_TYPE::VAR)
+        for(auto &e : block->instructions){
+            if(!e.arguments.empty() && e.arguments.begin()->type == argument::ARG_TYPE::VAR)
                 e.arguments.begin()->var = version_it(e.arguments.begin()->var, e.operation);
+            if(e.arguments.size() > 1 && e.arguments.back().type == argument::ARG_TYPE::VAR)
+                e.arguments.back().var = version_it(e.arguments.back().var, e.operation);
+        }
+
     }
 
     static std::string version_it(std::string &var, IR_MNEMONIC op){

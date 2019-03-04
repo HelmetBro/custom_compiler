@@ -183,11 +183,25 @@ public:
                 auto deepest_alt = construct_basic_blocks(current_block->alternate, if_stat->false_body);
                 deepest_alt->initial = ending;
                 ending->mother = deepest_alt;
+
+                //add branching line instruction
+//                current_block->instructions.back().arguments.emplace_back(
+//                        current_block->alternate->instructions.front().line_num,
+//                        argument::ARG_TYPE::INSTRUCT
+//                );
+
+
+
             } else { //does not have else block
                 current_block->alternate = ending;
                 ending->mother = current_block;
-            }
 
+                //add branching line instruction
+//                current_block->instructions.back().arguments.emplace_back(
+//                        ,
+//                        argument::ARG_TYPE::INSTRUCT
+//                );
+            }
         }
 
         if(s->type == statement::STATEMENT_TYPE::WHILE){
@@ -208,6 +222,18 @@ public:
             //fill false case (CMP condition succeeds)
             current_block->alternate = ending; //ending block
             ending->father = current_block;
+
+            //append the branch instruction to the right block
+//            if(current_block->father == nullptr)
+//                current_block->instructions.back().arguments.emplace_back(
+//                        instruction::instruction_counter + 1,
+//                        argument::ARG_TYPE::INSTRUCT
+//                );
+//            else
+//                current_block->instructions.back().arguments.emplace_back(
+//                    current_block->father->instructions.begin()->line_num,
+//                    argument::ARG_TYPE::INSTRUCT
+//            );
 
         }
 
@@ -295,6 +321,14 @@ public:
 
                 break;
             }
+
+            case statement::STATEMENT_TYPE::END:{
+                instructions.emplace_back(instruction(
+                        ++instruction::instruction_counter, //line number
+                        IR_MNEMONIC::END)); //arg2
+                break;
+            }
+
 
         }//switch
 

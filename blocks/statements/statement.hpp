@@ -11,7 +11,7 @@ class statement{
 
 public:
 
-    enum STATEMENT_TYPE {RETURN, WHILE, IF, ASSIGNMENT, FUNC_CALL};
+    enum STATEMENT_TYPE {RETURN, WHILE, IF, ASSIGNMENT, FUNC_CALL, END};
 
     STATEMENT_TYPE type;
 

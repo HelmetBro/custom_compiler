@@ -1,15 +1,20 @@
 // Basic while statement test
 main
-var a, b, c;
+var a, b, c, g, d;
 {
-	let a <- 1;
-	let b <- 2;
-	let c <- 3;
-	while a < b do
-		let a <- a + 1
-	od;
-	let b <- 3;
-	call OutputNum(a);
-	call OutputNum(b);
-	call OutputNum(c)
+	if a < b then
+		let a <- a + 5;
+
+		if a < b then
+		    call d;
+		    call g
+		fi
+
+	else
+	    let b <- g;
+	    let b <- g;
+	    let b <- g;
+	    let b <- g;
+	    let b <- g
+	fi
 }.

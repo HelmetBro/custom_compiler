@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
     builder.ssa();
 
     //dominators, parents
-    builder.debug(std::to_string(0), true, true);
+    builder.debug(std::to_string(0), false, false);
 
     return 0;
 }
