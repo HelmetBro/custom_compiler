@@ -21,6 +21,8 @@ struct argument{
 
     explicit argument(factor * fact);
 
+    argument(argument * arg);
+
     argument(int value, ARG_TYPE type);
 
     argument(std::string var, ARG_TYPE type);

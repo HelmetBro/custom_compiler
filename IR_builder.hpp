@@ -77,6 +77,8 @@ public:
                 std::vector<basic_block *> parents = get_parents(key.first);
                 std::vector<basic_block *> intersection = intersection_of_parent_doms(parents);
 
+                intersection.emplace_back(key.first);
+
                 if(intersection != key.second){
                     dominator_tree[key.first] = intersection;
                     change = true;
@@ -131,7 +133,7 @@ public:
         if(block->father)
             elements.push_back(block->father);
         if(block->mother)
-            elements.push_back(block->father);
+            elements.push_back(block->mother);
 
         return elements;
     }
@@ -151,8 +153,6 @@ public:
             }
         }
 
-//        start_basic->print();
-//        std::cout << std::endl;
         return start_basic;
     }
 
@@ -184,23 +184,9 @@ public:
                 deepest_alt->initial = ending;
                 ending->mother = deepest_alt;
 
-                //add branching line instruction
-//                current_block->instructions.back().arguments.emplace_back(
-//                        current_block->alternate->instructions.front().line_num,
-//                        argument::ARG_TYPE::INSTRUCT
-//                );
-
-
-
             } else { //does not have else block
                 current_block->alternate = ending;
                 ending->mother = current_block;
-
-                //add branching line instruction
-//                current_block->instructions.back().arguments.emplace_back(
-//                        ,
-//                        argument::ARG_TYPE::INSTRUCT
-//                );
             }
         }
 
@@ -222,18 +208,6 @@ public:
             //fill false case (CMP condition succeeds)
             current_block->alternate = ending; //ending block
             ending->father = current_block;
-
-            //append the branch instruction to the right block
-//            if(current_block->father == nullptr)
-//                current_block->instructions.back().arguments.emplace_back(
-//                        instruction::instruction_counter + 1,
-//                        argument::ARG_TYPE::INSTRUCT
-//                );
-//            else
-//                current_block->instructions.back().arguments.emplace_back(
-//                    current_block->father->instructions.begin()->line_num,
-//                    argument::ARG_TYPE::INSTRUCT
-//            );
 
         }
 

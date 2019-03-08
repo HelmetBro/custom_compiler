@@ -1,20 +1,19 @@
-// Basic while statement test
+// Nested if statement test
+// Added final let statement to test that phi propagation continues after all
+// the phi instructions.
 main
-var a, b, c, g, d;
+var a, b, c, f, d;
 {
-	if a < b then
-		let a <- a + 5;
-
+	let a <- 1;
+	let b <- 2;
+	let c <- 3;
+	if a > b then
+		let b <- f;
 		if a < b then
-		    call d;
-		    call g
+			let a <- f
 		fi
-
-	else
-	    let b <- g;
-	    let b <- g;
-	    let b <- g;
-	    let b <- g;
-	    let b <- g
-	fi
-}.
+	fi;
+	let a <- d;
+	call OutputNum(a)
+}
+.

@@ -18,7 +18,11 @@ struct instruction{
     IR_MNEMONIC operation;
     std::vector<argument> arguments;
 
+    instruction();
+
     instruction(unsigned long num, IR_MNEMONIC op, std::vector<argument> args);
+
+    instruction(unsigned long num, IR_MNEMONIC op, const argument &phi_base, const argument &arg1, const argument &arg2);
 
     instruction(unsigned long num, IR_MNEMONIC op, const argument &arg1, const argument &arg2);
 

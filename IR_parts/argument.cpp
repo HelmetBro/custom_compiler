@@ -4,6 +4,12 @@
 
 #include "argument.hpp"
 
+argument::argument(argument * arg){
+    this->type = arg->type;
+    this->var = arg->var;
+    this->value = arg->value;
+}
+
 argument::argument(factor * fact){
 
     if(fact->des != nullptr){ //not doing arrays atm

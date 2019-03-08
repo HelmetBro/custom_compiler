@@ -83,7 +83,7 @@ std::string debug::PT_dom_nodes(const std::unordered_map<basic_block*, std::vect
     std::string dominators;
     for(const auto &e : dom_tree)
         if(!e.second.empty())
-            dominators += "\t" + std::to_string(e.first->node_num) + " -> " + vec_to_string(e.second) + " [weight=100, color=green]\n";
+            dominators += "\t" + std::to_string(e.first->node_num) + " -> " + vec_to_string(e.second) + " [color=green]\n";
 
     return dominators;
 }
