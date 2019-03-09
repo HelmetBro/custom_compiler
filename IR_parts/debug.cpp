@@ -32,16 +32,16 @@ void debug::link_node(basic_block * start_block, bool parents){
         connections += "\t" + std::to_string(start_block->node_num) + " -> " +
                        std::to_string(start_block->alternate->node_num) + " [weight=100, color=red]\n";
 
-    if(parents){
+    if(!parents)
+        return;
 
-        if(start_block->father)
-            connections += "\t" + std::to_string(start_block->node_num) + " -> " +
-                           std::to_string(start_block->father->node_num) + " [color=black]\n";
+    if(start_block->father)
+        connections += "\t" + std::to_string(start_block->node_num) + " -> " +
+                       std::to_string(start_block->father->node_num) + " [weight=100, color=black]\n";
 
-        if(start_block->mother)
-            connections += "\t" + std::to_string(start_block->node_num) + " -> " +
-                           std::to_string(start_block->mother->node_num) + " [color=black]\n";
-    }
+    if(start_block->mother)
+        connections += "\t" + std::to_string(start_block->node_num) + " -> " +
+                       std::to_string(start_block->mother->node_num) + " [weight=100, color=black]\n";
 
 }
 

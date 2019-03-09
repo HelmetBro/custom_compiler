@@ -2,18 +2,17 @@
 // Added final let statement to test that phi propagation continues after all
 // the phi instructions.
 main
-var a, b, c, f, d;
+var a, b, c;
 {
 	let a <- 1;
 	let b <- 2;
 	let c <- 3;
 	if a > b then
-		let b <- f;
-		if a < b then
-			let a <- f
-		fi
+		let b <- c
+    else
+        let a <- b
 	fi;
-	let a <- d;
+	let b <- c;
 	call OutputNum(a)
 }
 .
