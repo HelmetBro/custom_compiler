@@ -8,9 +8,22 @@ var a, b, c;
 	let b <- 2;
 	let c <- 3;
 	if a > b then
-		let b <- c
-    else
-        let a <- b
+		let b <- c;
+		if a > b then
+        		let b <- c
+        	else
+        	    let b <- c;
+        	    let a <- c;
+        	    let c <- c
+        	fi
+	else
+	    let b <- c;
+	    let a <- c;
+
+	    if c > a then
+	        let b <-a
+	    fi;
+	    let c <- c
 	fi;
 	let b <- c;
 	call OutputNum(a)
