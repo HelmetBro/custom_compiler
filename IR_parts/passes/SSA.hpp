@@ -45,96 +45,26 @@ public:
 struct join_block {
 
     std::vector<phi_instruction> phi_insts;
-    table v_table;
-    bool from_initial = true;
 
-    explicit join_block(table tab){
-        v_table = std::move(tab);
-    }
+    explicit join_block(const table *initial, const table *alternate){
 
-    /** Updates join block with variable */
-    void construct_or_refurbish_phi(instruction *single_inst, table &v_table){
+        for(auto &i : *initial){
 
-        std::string arg = std::string(single_inst->arguments.begin()->var);
+            //if initial's version is not alternates, make a phi
+            if(i.second != alternate->at(i.first)){
 
-        //if we already have a phi, then we need to update it
-        if(contains_phi_for_variable(arg)){
-            init_phi_args(v_table);
-            return;
+                //initial's version
+                std::string phi_arg_1(i.first);
+                phi_arg_1.append("_" + std::to_string(i.second));
+
+                std::string phi_arg_2(i.first);
+                phi_arg_2.append("_" + std::to_string(alternate->at(i.first)));
+
+                phi_insts.emplace_back(phi_instruction(++instruction::instruction_counter, i.first, phi_arg_1, phi_arg_2));
+            }
         }
 
-        auto element = v_table.find(arg); //finding current version within the table
-        if(element == v_table.end())
-            throw syntax_error();
-
-        std::string new_arg(single_inst->arguments.begin()->var); //copy variable and append the current versioning scheme
-        new_arg.append("_" + std::to_string((*element).second));
-
-        phi_insts.emplace_back(phi_instruction( //create new phi and add it to the "joins block"
-                ++instruction::instruction_counter,
-                arg,
-                new_arg,
-                new_arg
-                ));
     }
-
-    void init_phi_args(table & v_table){
-
-        //loop over phi functions
-        for(auto &p : phi_insts){
-
-            auto element = v_table.find(p.base);
-            if(element == v_table.end())
-                throw syntax_error();
-
-            std::string arg(p.base);
-            arg.append("_" + std::to_string((*element).second));
-
-            if(from_initial)
-                p.first = arg;
-            else
-                p.second = arg;
-
-        }
-    }
-
-    bool contains_phi_for_variable(std::string var){
-        for(auto &p : phi_insts)
-            if(p.base == var)
-                return true;
-        return false;
-    }
-
-//    void merge_phis(join_block * popped){
-//
-//        for(auto &p : popped->phi_insts){
-//
-//            if(contains_phi_for_variable(p.base)){
-//
-//
-//                if(from_initial)
-//                    p.first = arg;
-//                else
-//                    p.second = arg;
-//
-//
-//            }
-//        }
-//
-//
-//        for(auto &p : phi_insts){
-//
-//
-//
-//
-//            if(from_initial)
-//                p.first = arg;
-//            else
-//                p.second = arg;
-//
-//        }
-//
-//    }
 
 };
 
@@ -148,118 +78,145 @@ public:
 
         visited.clear();
         auto join_stack = std::stack<join_block *>();
-        phi_versioning(IR_start, join_stack);
+        phi_versioning(IR_start, variable_version_table);
     }
 
 private:
 
     static std::vector<unsigned long> visited;
     static table variable_version_table;
-    static join_block * recently_popped;
 
-    static void construct_phis(basic_block *block, std::stack<join_block *> &joins, table &v_table){
+    static table * phi_versioning(basic_block *block, table v_table){
 
-        if(joins.empty())
-            return;
-
-        join_block * top = joins.top();
-
-        for(auto &inst : block->instructions)
-            if(inst.operation == IR_MNEMONIC::MOVE || inst.operation == IR_MNEMONIC::PHI)
-                top->construct_or_refurbish_phi(&inst, v_table);
-    }
-
-    static void init_phi_args(basic_block *block, std::stack<join_block *> &joins, table & v_table){
-
-        if(joins.empty())
-            return;
-
-        join_block * top = joins.top();
-        top->init_phi_args(v_table);
-    }
-
-    //EXACT same traversal as networking switches!!! Freaking cool!!!
-    static void phi_versioning(basic_block *block, std::stack<join_block *> &joins){
-
+        //only time this is true, is during while loops
+        bool is_while_block = false;
         if(std::find(visited.begin(), visited.end(), block->node_num) != visited.end())
-            return;
+            return nullptr;
         visited.push_back(block->node_num);
 
-        //get most relevant variable version table
-        table * new_table = joins.empty() ? &variable_version_table : &joins.top()->v_table;
+        //making copy, just in case it's a while loop block
+        auto while_table = new table(v_table);
 
-        if(parents_been_visited(block)){
+        //version phis, update globals
+        version_phis_bases(block, &v_table);
+        variable_version_table = *combine_tables(&variable_version_table, &v_table);
 
-            //add phi's without base identifiers, to the block
-            auto temp = add_phis_to_block(block, joins);
-            construct_phis(block, joins, recently_popped == nullptr ? variable_version_table : recently_popped->v_table);
-            version_phis_bases(block, recently_popped == nullptr ? temp->v_table : recently_popped->v_table);
-            recently_popped = temp;
-        } else {
-            construct_phis(block, joins, *new_table);
+        //version assignment arguments, update globals
+        version_assignment_args(block, &v_table);
+        variable_version_table = *combine_tables(&variable_version_table, &v_table);
+
+        auto initial = new table(v_table);
+        auto alternate = new table(v_table);
+
+        if(block->initial != nullptr && block->initial->mother == nullptr){
+            delete initial;
+            initial = phi_versioning(block->initial, v_table);
         }
 
-        //add version assignments to all arguments (except phi's)
-        version_assignment_args(block, *new_table);
-
-        //take care of phi's here
-        init_phi_args(block, joins, *new_table);
-
-        if(block->initial != nullptr && //if i have a child
-            (block->initial->mother == nullptr || //and its an only child. else, i must be the mother to recurse
-                (block->initial->mother != nullptr && block == block->initial->mother))){
-
-            //push a join block onto the stack if i branch
-            if(block->alternate != nullptr)
-                joins.push(new join_block(*new_table));
-
-            phi_versioning(block->initial, joins);
+        //if initial is nullptr, then we hit a while loop block
+        if(initial == nullptr){
+            auto join = join_block(&v_table, while_table);
+            add_phis_to_block(block->initial, join);
+            version_phis_bases(block->initial, &v_table);
+            variable_version_table = *combine_tables(&variable_version_table, &v_table);
         }
 
+        //check if we're the head of a while loop, combine v_table with new versions and carry on
 
-        if(block->alternate != nullptr){
-            joins.top()->from_initial = false;
-            phi_versioning(block->alternate, joins);
+        if(block->alternate != nullptr && block->alternate != block->ending){
+            delete alternate;
+            alternate = phi_versioning(block->alternate, v_table);
         }
+
+        //next block in sequence
+        if(block->ending != nullptr){
+
+            auto join = join_block(initial, alternate);
+
+            //add join block to beginning of ending block, and continue
+            if(!block->is_while)
+                add_phis_to_block(block->ending, join);
+
+            table combined = *combine_tables(initial, alternate);
+
+            delete initial;
+            delete alternate;
+            return phi_versioning(block->ending, combined);
+        }
+
+        delete initial;
+        delete alternate;
+        return new table(v_table);
+
+//        //EXACT same traversal as networking switches!!! Freaking cool!!!
+//        if(std::find(visited.begin(), visited.end(), block->node_num) != visited.end())
+//            return;
+//        visited.push_back(block->node_num);
+//
+//        //get most relevant variable version table
+//        table * new_table = joins.empty() ? &variable_version_table : &joins.top()->v_table;
+//
+//        if(parents_been_visited(block)){
+//
+//            //add phi's without base identifiers, to the block
+//            auto temp = add_phis_to_block(block, joins);
+//            construct_phis(block, joins, recently_popped == nullptr ? variable_version_table : recently_popped->v_table);
+//            version_phis_bases(block, recently_popped == nullptr ? temp->v_table : recently_popped->v_table);
+//            recently_popped = temp;
+//        } else {
+//            construct_phis(block, joins, *new_table);
+//        }
+//
+//        //add version assignments to all arguments (except phi's)
+//        version_assignment_args(block, *new_table);
+//
+//        //take care of phi's here
+//        init_phi_args(block, joins, *new_table);
+//
+//        if(block->initial != nullptr && //if i have a child
+//            (block->initial->mother == nullptr || //and its an only child. else, i must be the mother to recurse
+//                (block->initial->mother != nullptr && block == block->initial->mother))){
+//
+//            //push a join block onto the stack if i branch
+//            if(block->alternate != nullptr)
+//                joins.push(new join_block(*new_table));
+//
+//            phi_versioning(block->initial, joins);
+//        }
+//
+//
+//        if(block->alternate != nullptr){
+//            joins.top()->from_initial = false;
+//            phi_versioning(block->alternate, joins);
+//        }
 
     }
 
-    /** Iterate through entries and find updated values. */
-    static void update_global_var_table(const table &v_table){
+    static table * combine_tables(const table * first, const table * second){
 
-        for(auto &e : v_table){
+        auto * temp = new table(*first);
 
-            int & global_v = variable_version_table.at(e.first);
+        for(auto &e : *temp)
+            if(e.second < second->at(e.first))
+                e.second = second->at(e.first);
 
-            if(global_v < e.second)
-                global_v = e.second;
-        }
-
+        return temp;
     }
 
-    static join_block * add_phis_to_block(basic_block *block, std::stack<join_block *> &joins){
-        join_block * top = joins.top();
-        joins.pop();
-
-        for(auto &phi : top->phi_insts)
+    static void add_phis_to_block(basic_block *block, join_block & join){
+        for(auto &phi : join.phi_insts)
             block->instructions.insert(block->instructions.begin(), phi.phi_to_instruction());
-
-        return top;
     }
 
-    static bool parents_been_visited(basic_block *block){
-        return block->father != nullptr && block->mother != nullptr;
-    }
-
-    static table version_assignment_args(basic_block *block, table & v_table){
+    static void version_assignment_args(basic_block *block, table * v_table){
 
         //iterate through block instructions
         for(auto &e : block->instructions)
 
                 //iterate through all of its arguments
-                for(int i = 0; i < e.arguments.size(); i++){
+                for(int i = static_cast<int>(e.arguments.size() - 1); i >= 0; i--){
 
-                    //if we're a phi, only version the first argument
+                    //if we're a phi operation, then skip it
                     if(e.operation == IR_MNEMONIC::PHI)
                         continue;
 
@@ -269,30 +226,34 @@ private:
                         //then version it!
                         version_arg(e.arguments[i].var, e.operation, i == 0, v_table);
                 }
-
-        return v_table;
-
     }
-    static void version_arg(std::string &var, IR_MNEMONIC op, bool first_arg, table & v_table){
 
-        //variable found is not in the global vars list!
-        auto element = v_table.find(var);
-        if(element == v_table.end())
+    static void version_arg(std::string &var, IR_MNEMONIC op, bool first_arg, table * v_table){
+
+        table * v_t = v_table;
+
+        if(first_arg && op == IR_MNEMONIC::MOVE)
+            v_t = &variable_version_table;
+
+        auto element = v_t->find(var);
+        if(element == v_t->end())
             throw syntax_error();
 
-        if(first_arg && op == IR_MNEMONIC::MOVE) //increase version number if we're a MOVE
+        if(first_arg && op == IR_MNEMONIC::MOVE){
             ++(*element).second;
+            v_table->at(element->first) = element->second;
+        }
 
         var.append("_" + std::to_string((*element).second));
     }
 
-    static void version_phis_bases(basic_block *block, table &v_table){
+    static void version_phis_bases(basic_block *block, table * v_table){
 
         //iterate through block instructions
         for(auto &e : block->instructions)
             if(e.operation == IR_MNEMONIC::PHI){
-                auto element = v_table.find(e.arguments[0].var);
-                if(element == v_table.end())
+                auto element = v_table->find(e.arguments[0].var);
+                if(element == v_table->end())
                     throw syntax_error();
 
                 e.arguments[0].var.append("_" + std::to_string(++(*element).second));
@@ -303,7 +264,6 @@ private:
 };
 
 table SSA::variable_version_table;
-join_block * SSA::recently_popped;
 std::vector<unsigned long> SSA::visited;
 
 #endif //INC_241COMPILER_SSA_HPP

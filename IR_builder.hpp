@@ -162,8 +162,8 @@ public:
 
         if(s->type == statement::STATEMENT_TYPE::IF){
             auto * if_stat = dynamic_cast<if_statement *>(s);
-
-            ending = new basic_block(); //node num not correctly updating
+            current_block->is_if = true;
+            current_block->ending = ending = new basic_block(); //node num not correctly updating
 
             /*
              * The "initial" points to the true block (CMP condition fails), vice-versa.
@@ -192,8 +192,8 @@ public:
 
         if(s->type == statement::STATEMENT_TYPE::WHILE){
             auto * while_stat = dynamic_cast<while_statement *>(s);
-
-            ending = new basic_block();
+            current_block->is_while = true;
+            current_block->ending = ending = new basic_block();
 
             /*
              * The "initial" points to the true block (CMP condition fails), vice-versa.

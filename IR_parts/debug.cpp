@@ -2,6 +2,7 @@
 // Created by Eric Parsons on 2019-02-16.
 //
 #include <fstream>
+#include <algorithm>
 
 #include "debug.hpp"
 

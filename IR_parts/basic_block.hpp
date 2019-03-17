@@ -11,8 +11,14 @@ class basic_block{
 
 public:
 
+    bool is_while;
+    bool is_if;
+
     static unsigned long current_node_num;
     unsigned long node_num;
+
+    //optional
+    basic_block * ending = nullptr;
 
     //optional
     basic_block * father = nullptr;
