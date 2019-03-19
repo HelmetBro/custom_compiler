@@ -11,8 +11,10 @@ class basic_block{
 
 public:
 
-    bool is_while;
-    bool is_if;
+    std::string name; //only if start of a function
+
+    bool is_while = false;
+    bool is_if = false;
 
     static unsigned long current_node_num;
     unsigned long node_num;

@@ -134,7 +134,7 @@ public:
             return std::vector<basic_block *>();
 
         if(parents.size() == 1)
-            return parents;
+            return dominator_tree[parents[0]];
 
         std::vector<basic_block*> doms1 = dominator_tree[parents[0]];
         std::vector<basic_block*> doms2 = dominator_tree[parents[1]];
@@ -146,7 +146,7 @@ public:
 
         std::vector<basic_block *> elements;
 
-        if(block->father)
+        if(block->father && block->father != block)
             elements.push_back(block->father);
         if(block->mother)
             elements.push_back(block->mother);
@@ -155,10 +155,13 @@ public:
     }
 
     void build_initial_IR(){
-        construct_basic_blocks(IR_start, dynamic_cast<main_block *>(AST_start)->body);
+        auto main = dynamic_cast<main_block *>(AST_start);
+        construct_basic_blocks(IR_start, main->body);
+        IR_start->name = "main";
 
-        for(auto &func : dynamic_cast<main_block *>(AST_start)->functions){
+        for(auto &func : main->functions){
             auto func_block = new basic_block();
+            func_block->name = func->name;
             construct_basic_blocks(func_block, func->body);
             functions.emplace_back(func_block);
         }
@@ -291,10 +294,19 @@ public:
                             IR_MNEMONIC::READ));
 
                 } else {
+
+                    //get list of parameters
+                    std::vector<argument> args;
+                    args.emplace_back(argument(func->name, argument::ARG_TYPE::FUNC_CALL));
+
+                    for(auto a : func->arguments)
+                        args.emplace_back(parse_expression(instructions, a));
+
                     instructions.emplace_back(instruction(
                             ++instruction::instruction_counter,
                             IR_MNEMONIC::F_CALL,
-                            argument(func->name, argument::ARG_TYPE::FUNC_CALL)));
+                            args
+                            ));
                 }
 
                 break;
@@ -485,7 +497,7 @@ public:
 
     void ssa(){
         SSA::ssa_add_phis(IR_start, functions, version_table);
-        SSA::ssa_remove_phis(IR_start, functions, version_table);
+//        SSA::ssa_remove_phis(IR_start, functions, version_table);
     }
 
 };

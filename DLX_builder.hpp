@@ -77,6 +77,16 @@ private:
     //for traversal
     std::vector<unsigned long> visited;
 
+    int RA = 31;
+    int GL = 30;
+    int SP = 29;
+    int FP = 28;
+
+
+    int prev_FA = 0;
+    int FA = prev_FA; //function address
+    std::vector<std::pair<std::string, int>> FA_map;
+
 public:
 
     void build(basic_block * main, const std::vector<basic_block *> &functions, const table &variables, block * AST_main){
@@ -92,8 +102,39 @@ public:
         //for all arrays, initialize their registers with locations on heap.
         initialize_arrays(AST_main);
 
+        //put all function names (with FA = 0, and with main) inside of FA_map
+        for (auto function : functions)
+            FA_map.emplace_back(std::pair<std::string, int>(function->name, 0));
+        FA_map.emplace_back(std::pair<std::string, int>(main->name, FA));
+
         //traversal
         traverse(main);
+
+        for (auto function : functions) {
+            update_FA(function->name);
+            traverse(function);
+        }
+
+        //finally putting functions together
+        link_functions();
+    }
+
+    void update_FA(const std::string &name){
+        prev_FA = FA;
+        FA = _instr - 1;
+        for (auto &ind : FA_map)
+            if(ind.first == name)
+                ind.second = FA;
+    }
+
+    void link_functions(){
+
+        //find JSR instruction and LINK!
+        int index = 0;
+        while(index++ < _instr)
+            if(M[index][1] == JSR)
+                M[index][2] = FA_map.at(static_cast<unsigned long>(M[index][2])).second;
+
     }
 
     void initialize_arrays(block * AST_main){
@@ -113,6 +154,8 @@ public:
                 for(const auto &ident : v->idents)
                     if(v->is_array)
                         allocate_array(ident, v->numbers, free_space);
+
+        code(-1, ADDI, SP, 0, free_space - 1);
     }
 
     void allocate_array(const std::string &var, const std::vector<int> & dimensions, int &free_space){
@@ -217,7 +260,7 @@ public:
                 case ::RET:break;
 
                 case F_CALL:
-                    call(i); break;
+                    call(i, arg1); break;
 
                 case READ:
                     code(static_cast<int>(i.line_num), RDI, allocate_reg()); break;
@@ -236,24 +279,37 @@ public:
 
     }
 
-    void call(instruction &i){
+    void call(instruction &i, argument * arg1){
 
-//        int RA = 31;
-//        int SP = 29;
-//        int FP = 28;
-//
+        //putting RA in register and stack
+        code(-1, ADDI, RA, RA, _instr);
+        code(-1, PSH, RA, SP, -4);
+
+        //push parameters on stack!
+        for(int p = 1; p < i.arguments.size(); ++p)
+            code(static_cast<int>(i.line_num), PSH, get_reg(i.arguments[p].var), SP, -4);
+
+        //gets index of function from function table
+        int f_index = -1;
+        for(int ind = 0; ind < FA_map.size(); ++ind)
+            if(FA_map[ind].first == arg1->var)
+                f_index = ind;
+
+        code(-1, JSR, f_index);
+
+        //restore parameters
+        for(int p = 1; p < i.arguments.size(); ++p)
+            code(static_cast<int>(i.line_num), POP, get_reg(i.arguments[p].var), SP, 4);
+
+        code(-1, POP, RA, SP, 4);
+
 //        //before
 //        code(-1, PSH, RA, SP, -4);
 //        code(-1, PSH, FP, SP, -4);
 //        code(-1, ADD, FP, 0, SP);
 //        code(-1, SUBI, SP, SP, static_cast<int>(i.arguments.size() * 4));
-//
-//        //push parameters on stack!
-//        for(auto &p : i.arguments){
-//            code(static_cast<int>(i.line_num), PSH, )
-//        }
-//
-//        //after
+
+        //after
 //        code(-1, ADD, SP, 0, FP);
 //        code(-1, POP, FP, SP, 4);
 //        code(-1, POP, RA, SP, 4);
@@ -298,6 +354,11 @@ public:
     }
 
     void mov(instruction * prev, instruction &i, argument * arg1, argument * arg2){
+
+        if(arg2->type == argument::FUNC_CALL){
+            call(i, arg2);
+        }
+
         if(arg1->type == argument::VAR){
 
             if(arg2->type == argument::CONST)
@@ -310,8 +371,8 @@ public:
                 else
                     code(static_cast<int>(i.line_num), ADDI, get_reg(arg1->var), get_reg(arg2->value), 0);
             }
-            if(arg2->type == argument::ADDR)
-                code(static_cast<int>(i.line_num), ADDI, get_reg(arg1->var), get_reg(arg2->var));
+
+            code(static_cast<int>(i.line_num), ADDI, get_reg(arg1->var), get_reg(arg2->var));
 
         } else if (arg1->type == argument::INSTRUCT){ //something like let b[4] <- 7
 
@@ -329,16 +390,6 @@ public:
         int store_reg = get_reg(arg1->var);
         int offset_reg = get_reg(arg2->var);
         code(static_cast<int>(i.line_num), ADD, allocate_reg(), store_reg, offset_reg);
-//        code(static_cast<int>(i.line_num), LDX, store_reg, 0, offset_reg);
-
-//        for(char parts = 0; parts < 3; parts++){
-//            code(static_cast<int>(i.line_num), LDX, store_reg, 0, offset_reg);
-//            code(static_cast<int>(i.line_num), ADDI, offset_reg, 0, 1);
-//            code(static_cast<int>(i.line_num), LSHI, store_reg, store_reg, 8);
-//        }
-//
-//        code(static_cast<int>(i.line_num), LDX, store_reg, 0, offset_reg);
-
     }
 
     void cmp(instruction &i, argument * arg1, argument * arg2){
@@ -382,9 +433,9 @@ public:
     }
 
     /** Writes M to file with .241 extension. */
-    void write(const std::string &file_name){
+    void write(const std::string &file_num){
         std::ofstream outfile;
-        outfile.open(file_name);
+        outfile.open("output" + file_num + ".241");
         int i = 0;
         for(; i < MemSize && !(M[i][1] == RET && M[i][2] == 0); i++){
             outfile << M[i][1] << " ";
@@ -471,10 +522,8 @@ public:
 
     void clear_reg(const std::string & var){
         for(int i = 1; i < 28; i++) //regs 1-27 are available
-            if(regs[i] != nullptr && *regs[i] == var){
-                delete regs[i];
+            if(regs[i] != nullptr && *regs[i] == var)
                 regs[i] = nullptr;
-            }
     }
 
 };

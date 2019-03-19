@@ -93,25 +93,18 @@ private:
 
     static void phi_removal(basic_block * block){
 
-        if(block->father != nullptr && block->mother != nullptr){
-
-        }
-
-//        //if initial is nullptr, then we hit a while loop block
-//        if(initial == nullptr){
+//        if(block->father != nullptr && block->mother != nullptr){
+//
 //        }
-
-        //check if we're the head of a while loop, combine v_table with new versions and carry on
-
-        if(block->mother != nullptr && block->mother != block->ending){
-        }
-
-        //next block in sequence
-        if(block->ending != nullptr){
-        }
-
-
-
+//
+//        //check if we're the head of a while loop, combine v_table with new versions and carry on
+//
+//        if(block->mother != nullptr && block->mother != block->ending){
+//        }
+//
+//        //next block in sequence
+//        if(block->ending != nullptr){
+//        }
 
     }
 

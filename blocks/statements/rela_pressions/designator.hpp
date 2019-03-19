@@ -17,7 +17,7 @@ class designator {
 
 public:
 
-    bool is_array;
+    bool is_array = false;
 
     std::string ident;
 

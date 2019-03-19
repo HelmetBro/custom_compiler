@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by Eric Parsons on 2019-02-16.
 //
@@ -19,7 +21,7 @@ instruction::instruction(unsigned long num, IR_MNEMONIC op, const argument &phi_
 instruction::instruction(unsigned long num, IR_MNEMONIC op, std::vector<argument> args){
     this->line_num = num;
     this->operation = op;
-    this->arguments = args;
+    this->arguments = std::move(args);
 }
 
 instruction::instruction(unsigned long num, IR_MNEMONIC op, const argument &arg1, const argument &arg2){
