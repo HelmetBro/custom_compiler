@@ -372,7 +372,8 @@ public:
                     code(static_cast<int>(i.line_num), ADDI, get_reg(arg1->var), get_reg(arg2->value), 0);
             }
 
-            code(static_cast<int>(i.line_num), ADDI, get_reg(arg1->var), get_reg(arg2->var));
+            if(arg2->type == argument::ADDR)
+                code(static_cast<int>(i.line_num), ADDI, get_reg(arg1->var), get_reg(arg2->var));
 
         } else if (arg1->type == argument::INSTRUCT){ //something like let b[4] <- 7
 
