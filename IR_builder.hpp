@@ -64,7 +64,7 @@ public:
             for(auto ident : v->idents)
                 version_table.insert(std::pair<std::string, int>(ident, 0));
 
-        //function variables
+        //functions' variables
         for(auto &func : dynamic_cast<main_block *>(AST_start)->functions)
             for(auto ident : func->variables)
                 for(auto v : ident->idents)

@@ -50,6 +50,7 @@ int main(int argc, char **argv) {
     absyntree tree(&lex);
     block * start = tree.make_absyntree();
 //    tree.print_absyntree();
+
     IR_builder ir_builder(start);
 
     //make starting IR
@@ -65,7 +66,7 @@ int main(int argc, char **argv) {
     ir_builder.debug(std::to_string(0), false, false);
 
     DLX_builder dlx_builder;
-    dlx_builder.build(ir_builder.get_main(), ir_builder.get_functions(), ir_builder.get_variables());
+    dlx_builder.build(ir_builder.get_main(), ir_builder.get_functions(), ir_builder.get_variables(), start);
     dlx_builder.write("output.241");
 
     return 0;

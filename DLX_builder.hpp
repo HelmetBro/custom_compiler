@@ -6,6 +6,7 @@
 #define INC_241COMPILER_DLX_BUILDER_H
 
 #include <string>
+#include <numeric>
 
 #include "IR_parts/basic_block.hpp"
 
@@ -78,7 +79,7 @@ private:
 
 public:
 
-    void build(basic_block * main, const std::vector<basic_block *> &functions, const table &variables){
+    void build(basic_block * main, const std::vector<basic_block *> &functions, const table &variables, block * AST_main){
 
         for(int i = 1; i < 28; ++i)
             regs[i] = nullptr;
@@ -88,8 +89,40 @@ public:
             _start_open_regs = allocate_reg(variable.first);
         _start_open_regs++;
 
+        //for all arrays, initialize their registers with locations on heap.
+        initialize_arrays(AST_main);
+
         //traversal
         traverse(main);
+    }
+
+    void initialize_arrays(block * AST_main){
+
+        auto main = dynamic_cast<main_block *>(AST_main);
+        int free_space = MemSize;
+
+        //mains' variables
+        for(const auto &v : main->variables)
+            for(const auto &ident : v->idents)
+                if(v->is_array)
+                    allocate_array(ident, v->numbers, free_space);
+
+        //functions' variables
+        for(const auto &func : main->functions)
+            for(const auto &v : func->variables)
+                for(const auto &ident : v->idents)
+                    if(v->is_array)
+                        allocate_array(ident, v->numbers, free_space);
+    }
+
+    void allocate_array(const std::string &var, const std::vector<int> & dimensions, int &free_space){
+
+        int reg = get_reg(var);
+        int size = std::accumulate(dimensions.begin(), dimensions.end(), 0);
+        int address = free_space -= size;
+
+        //put address into array register
+        code(-1, ADDI, reg, 0, address);
     }
 
     bool traverse(basic_block * block){
@@ -131,17 +164,9 @@ public:
 
     bool to_instructions(basic_block * block){
 
-        for(auto &i : block->instructions){
+        for(int count = 0; count < block->instructions.size(); count++){
 
-            //check for variable/reg allocation
-//            unsigned long size = i.arguments.size();
-//            for(unsigned long a = 0; a < size; ++a){
-//                int reg = has_reg(i.arguments.at(a).var);
-//                if(a == 0 &&
-//                    i.arguments.at(a).type == argument::VAR &&
-//                    !reg)
-//                    allocate_reg(i.arguments.at(a).var);
-//            }
+            auto &i = block->instructions[count];
 
             int size = static_cast<int>(i.arguments.size());
             argument * arg1 = (size >= 1 ? &i.arguments.at(0) : nullptr);
@@ -162,12 +187,14 @@ public:
                 case ::CMP:
                     cmp(i, arg1, arg2); break;
 
+                case ADDA:
+                    adda(i, arg1, arg2); break;
 
-                case ADDA:break;
                 case LOAD:break;
                 case STORE:break;
+
                 case MOVE:
-                    mov(i, arg1, arg2); break;
+                    mov(count - 1 > 0 ? &block->instructions[count - 1] : nullptr, i, arg1, arg2); break;
                 case PHI:break;
                 case END:
                     code(static_cast<int>(i.line_num), RET, 0); break;
@@ -188,7 +215,6 @@ public:
                     code(static_cast<int>(i.line_num), BGT, get_reg(static_cast<int>(i.line_num) - 1), 0); return true;
 
                 case ::RET:break;
-
                 case F_CALL:break;
 
                 case READ:
@@ -200,7 +226,6 @@ public:
             }
 
         }
-
 
         return false;
 
@@ -217,10 +242,8 @@ public:
         } else if (arg1->type == argument::CONST && arg2->type == argument::CONST) {
 
             int temp_reg = get_reg(std::to_string(arg1->value));
-            if(temp_reg == 0){
-                temp_reg = allocate_reg(std::to_string(arg1->value));
-                code(static_cast<int>(i.line_num), ADDI, temp_reg, 0, arg1->value);
-            }
+            if(temp_reg == 0)
+                temp_reg = allocate_reg_const(i, arg1->value);
 
             code(static_cast<int>(i.line_num), opi, allocate_reg(std::to_string((int)i.line_num)), temp_reg, arg2->value);
         } else {
@@ -244,26 +267,48 @@ public:
 
     }
 
-    void mov(instruction &i, argument * arg1, argument * arg2){
+    void mov(instruction * prev, instruction &i, argument * arg1, argument * arg2){
         if(arg1->type == argument::VAR){
 
             if(arg2->type == argument::CONST)
                 code(static_cast<int>(i.line_num), ADDI, get_reg(arg1->var), 0, arg2->value);
             if(arg2->type == argument::VAR)
                 code(static_cast<int>(i.line_num), ADDI, get_reg(arg1->var), get_reg(arg2->var), 0);
-            if(arg2->type == argument::INSTRUCT)
-                code(static_cast<int>(i.line_num), ADDI, get_reg(arg1->var), get_reg(arg2->value), 0);
+            if(arg2->type == argument::INSTRUCT){
+                if(prev != nullptr && prev->operation == ADDA)
+                    code(static_cast<int>(i.line_num), LDX, get_reg(arg1->var), get_reg(arg2->value), 0);
+                else
+                    code(static_cast<int>(i.line_num), ADDI, get_reg(arg1->var), get_reg(arg2->value), 0);
+            }
+            if(arg2->type == argument::ADDR)
+                code(static_cast<int>(i.line_num), ADDI, get_reg(arg1->var), get_reg(arg2->var));
 
-        } else { //arg1->type == argument::ADDR
+        } else if (arg1->type == argument::INSTRUCT){ //something like let b[4] <- 7
 
+            if(arg2->type == argument::CONST)
+                code(static_cast<int>(i.line_num), STW, allocate_reg_const(i, arg2->value), get_reg(arg1->value), 0);
+            else
+                code(static_cast<int>(i.line_num), STW, get_reg(arg2->value), get_reg(arg1->value), 0);
 
+        } else { //something like let z <- b when b is an array
 
         }
     }
 
-    int NOP(){
-        code(-1, ADDI, 0, 0, 0);
-        return _instr - 1;
+    void adda(instruction &i, argument * arg1, argument * arg2){
+        int store_reg = get_reg(arg1->var);
+        int offset_reg = get_reg(arg2->var);
+        code(static_cast<int>(i.line_num), ADD, allocate_reg(), store_reg, offset_reg);
+//        code(static_cast<int>(i.line_num), LDX, store_reg, 0, offset_reg);
+
+//        for(char parts = 0; parts < 3; parts++){
+//            code(static_cast<int>(i.line_num), LDX, store_reg, 0, offset_reg);
+//            code(static_cast<int>(i.line_num), ADDI, offset_reg, 0, 1);
+//            code(static_cast<int>(i.line_num), LSHI, store_reg, store_reg, 8);
+//        }
+//
+//        code(static_cast<int>(i.line_num), LDX, store_reg, 0, offset_reg);
+
     }
 
     void cmp(instruction &i, argument * arg1, argument * arg2){
@@ -299,6 +344,11 @@ public:
         M[_instr][3] = third;
         M[_instr][4] = fourth;
         _instr++;
+    }
+
+    int NOP(){
+        code(-1, ADDI, 0, 0, 0);
+        return _instr - 1;
     }
 
     /** Writes M to file with .241 extension. */
@@ -355,6 +405,19 @@ public:
     //runtime version
     int allocate_reg(){
         return allocate_reg("RUNTIME");
+    }
+
+    int allocate_reg_const(instruction &i, int value){
+        int reg = get_reg(std::to_string(value));
+        if(reg)
+            return reg;
+        for(int x = 1; x < 28; x++) //regs 1-27 are available
+            if(regs[x] == nullptr){
+                regs[x] = new std::string(std::to_string(value));
+                code(static_cast<int>(i.line_num), ADDI, x, 0, value);
+                return x;
+            }
+        return 0; //false if we cant find any
     }
 
     //compile time version
