@@ -215,7 +215,9 @@ public:
                     code(static_cast<int>(i.line_num), BGT, get_reg(static_cast<int>(i.line_num) - 1), 0); return true;
 
                 case ::RET:break;
-                case F_CALL:break;
+
+                case F_CALL:
+                    call(i); break;
 
                 case READ:
                     code(static_cast<int>(i.line_num), RDI, allocate_reg()); break;
@@ -227,7 +229,35 @@ public:
 
         }
 
+        //clear registers
+        clear_variable_registers();
+
         return false;
+
+    }
+
+    void call(instruction &i){
+
+//        int RA = 31;
+//        int SP = 29;
+//        int FP = 28;
+//
+//        //before
+//        code(-1, PSH, RA, SP, -4);
+//        code(-1, PSH, FP, SP, -4);
+//        code(-1, ADD, FP, 0, SP);
+//        code(-1, SUBI, SP, SP, static_cast<int>(i.arguments.size() * 4));
+//
+//        //push parameters on stack!
+//        for(auto &p : i.arguments){
+//            code(static_cast<int>(i.line_num), PSH, )
+//        }
+//
+//        //after
+//        code(-1, ADD, SP, 0, FP);
+//        code(-1, POP, FP, SP, 4);
+//        code(-1, POP, RA, SP, 4);
+//        code(-1, RET, 0, 0, RA);
 
     }
 
@@ -431,6 +461,12 @@ public:
                 return i;
             }
         return 0; //false if we cant find any
+    }
+
+    void clear_variable_registers(){
+        for(int i = 1; i < 28; i++)
+            if(regs[i] != nullptr && isdigit(regs[i]->front()))
+                clear_reg(*regs[i]);
     }
 
     void clear_reg(const std::string & var){
