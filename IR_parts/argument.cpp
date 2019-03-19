@@ -48,6 +48,8 @@ void argument::print(){
             break;
         case VAR: std::cout << "%" << var << " ";
             break;
+        case ADDR: std::cout << "$" << var << " ";
+            break;
         default:
             std::cout << "!" << var << " ";
     }
@@ -63,6 +65,8 @@ std::string argument::to_string(){
         case INSTRUCT: out += "(" + std::to_string(value) + ") ";
             break;
         case VAR: out += "%" + var + " ";
+            break;
+        case ADDR: out += "$" + var + " ";
             break;
         default:
             out += "!" + var + " ";

@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "term.hpp"
-#include "../../../abstract_syntax_tree.hpp"
+#include "../../../AST_builder.hpp"
 #include "../../../tables/symbol_table.hpp"
 
 class term;

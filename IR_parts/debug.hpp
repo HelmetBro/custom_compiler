@@ -33,7 +33,7 @@ private:
 
 public:
 
-    static void graph(basic_block * start_block,
+    static void graph(basic_block * start_block, std::vector<basic_block *> functions,
                       const std::unordered_map<basic_block*, std::vector<basic_block*>> &dom_tree,
                       const std::string &num, bool dominators = true, bool parents = true);
 

@@ -90,8 +90,11 @@ std::string debug::PT_dom_nodes(const std::unordered_map<basic_block*, std::vect
 }
 
 void debug::graph(basic_block * start_block,
-        const std::unordered_map<basic_block*, std::vector<basic_block*>> &dom_tree,
-        const std::string &num, bool dominators, bool parents){
+        std::vector<basic_block *> functions,
+        const std::unordered_map<basic_block*,
+        std::vector<basic_block*>> &dom_tree,
+        const std::string &num,
+        bool dominators, bool parents){
 
     std::string command = "graphIR" + num + ".dot";
     diagram.open(command);
@@ -105,6 +108,14 @@ void debug::graph(basic_block * start_block,
     PT_fill_nodes(start_block);
     visited_nodes.clear();
     PT_link_nodes(start_block, parents);
+
+    //functions
+    for(auto &f : functions){
+        visited_nodes.clear();
+        PT_fill_nodes(f);
+        visited_nodes.clear();
+        PT_link_nodes(f, parents);
+    }
 
     diagram << nodes << connections << (dominators ? PT_dom_nodes(dom_tree) : "" ) << "}";
     diagram.close();

@@ -1,20 +1,12 @@
-// Nested if statement test
-// Added final let statement to test that phi propagation continues after all
-// the phi instructions.
 main
-var a, b, c;
+var i, y, z, x, d;
+array [5][9] hey;
 {
-	let a <- 1;
-	let b <- 2;
-	let c <- 3;
+    let y <- 10;
+    while y > 0 do
+        let y <- y - 1;
+        call OutputNum(y)
+    od;
 
-	while a > b do
-		let b <- c;
-		while a < c do
-		    let b <- c
-		od
-	od;
-
-	let b <- c;
-	call OutputNum(a)
+    let i <- hey[1][3]
 }.

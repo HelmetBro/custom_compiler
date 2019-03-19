@@ -12,7 +12,7 @@
 
 struct argument{
 
-    enum ARG_TYPE {CONST, INSTRUCT, VAR, FUNC_CALL};
+    enum ARG_TYPE {CONST, INSTRUCT, VAR, FUNC_CALL, ADDR};
 
     ARG_TYPE type;
 

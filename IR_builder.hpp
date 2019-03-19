@@ -28,6 +28,7 @@ private:
 
     block * AST_start = nullptr;
     basic_block * IR_start = nullptr;
+    std::vector<basic_block *> functions;
 
     //int types are node numbers
     map dominator_tree;
@@ -38,26 +39,42 @@ private:
 
 public:
 
+    basic_block * get_main(){
+        return IR_start;
+    }
+
+    std::vector<basic_block *> get_functions(){
+        return functions;
+    }
+
+    table get_variables(){
+        return version_table;
+    }
+
     void debug(const std::string &num, bool doms, bool parents){
-        debug::graph(IR_start, dominator_tree, num, doms, parents);
+        debug::graph(IR_start, functions, dominator_tree, num, doms, parents);
         debug::open(num);
     }
 
-    IR_builder(block * start){
+    explicit IR_builder(block * start){
         AST_start = start;
 
-        //storing variables from main
-        for(auto v : dynamic_cast<main_block *>(AST_start)->variables) //add vars to version table
-            for(auto ident : v->idents) //insert all variable names
+        //mains' variables
+        for(auto v : dynamic_cast<main_block *>(AST_start)->variables)
+            for(auto ident : v->idents)
                 version_table.insert(std::pair<std::string, int>(ident, 0));
 
-        //store function stuff later
+        //function variables
+        for(auto &func : dynamic_cast<main_block *>(AST_start)->functions)
+            for(auto ident : func->variables)
+                for(auto v : ident->idents)
+                    version_table.insert(std::pair<std::string, int>(v, 0));
 
         //resets
         instruction::instruction_counter = 0;
         basic_block::current_node_num = 0;
 
-        //build!
+        //main
         IR_start = new basic_block();
     }
 
@@ -67,7 +84,6 @@ public:
         dominator_tree.clear();
         populate_map_with_nodes(IR_start, dominator_tree);
 
-        //O(n^4). yeah. kill me. works for now, refactoring later. i can do better than this
         bool change;
         do{
 
@@ -140,6 +156,13 @@ public:
 
     void build_initial_IR(){
         construct_basic_blocks(IR_start, dynamic_cast<main_block *>(AST_start)->body);
+
+        for(auto &func : dynamic_cast<main_block *>(AST_start)->functions){
+            auto func_block = new basic_block();
+            construct_basic_blocks(func_block, func->body);
+            functions.emplace_back(func_block);
+        }
+
     }
 
     basic_block * construct_basic_blocks(basic_block * start_basic, body_block * current_body){
@@ -221,12 +244,13 @@ public:
                 //ASSIGNMENT
             case statement::STATEMENT_TYPE::ASSIGNMENT: {
                 auto assign = dynamic_cast<assignment *>(s);
-                argument * temp = parse_expression(instructions, assign->exp);
+                argument * first = assign->des->is_array ? make_array(instructions, assign->des) : new argument(assign->des->ident, argument::ARG_TYPE::VAR);
+                argument * second = parse_expression(instructions, assign->exp);
                 instructions.emplace_back(instruction(
                         ++instruction::instruction_counter, //line number
                         IR_MNEMONIC::MOVE, //type of instruction
-                        argument(assign->des->ident, argument::ARG_TYPE::VAR), //arg1
-                        *temp)); //arg2
+                        *first, //arg1
+                        *second)); //arg2
 
                 break;
             }
@@ -246,14 +270,35 @@ public:
                 //FUNCTION CALL
             case statement::STATEMENT_TYPE::FUNC_CALL:{
                 auto func = dynamic_cast<function_call *>(s);
-                instructions.emplace_back(instruction(
-                        ++instruction::instruction_counter, //line number
-                        IR_MNEMONIC::F_CALL, //type of instruction
-                        argument(func->name, argument::ARG_TYPE::FUNC_CALL))); //arg1
+
+                /* We have "special" functions, InputNum, OutputNum, OutputNewLine.
+                 * Only the function OutputNum has arguments, and will have a special call.*/
+
+                if(func->name == "OutputNum"){
+                    instructions.emplace_back(instruction(
+                            ++instruction::instruction_counter,
+                            IR_MNEMONIC::WRITE,
+                            parse_expression(instructions, func->arguments.front())));
+
+                } else if (func->name == "OutputNewLine"){
+                    instructions.emplace_back(instruction(
+                            ++instruction::instruction_counter,
+                            IR_MNEMONIC::WRITENL));
+
+                } else if (func->name == "InputNum"){
+                    instructions.emplace_back(instruction(
+                            ++instruction::instruction_counter,
+                            IR_MNEMONIC::READ));
+
+                } else {
+                    instructions.emplace_back(instruction(
+                            ++instruction::instruction_counter,
+                            IR_MNEMONIC::F_CALL,
+                            argument(func->name, argument::ARG_TYPE::FUNC_CALL)));
+                }
 
                 break;
             }
-
 
                 //WHILE STATEMENTS
             case statement::STATEMENT_TYPE::WHILE:{
@@ -275,6 +320,7 @@ public:
 
                 break;
             }
+
                 //IF STATEMENTS
             case statement::STATEMENT_TYPE::IF:{
                 auto if_stat = dynamic_cast<if_statement *>(s);
@@ -302,7 +348,6 @@ public:
                         IR_MNEMONIC::END)); //arg2
                 break;
             }
-
 
         }//switch
 
@@ -337,8 +382,12 @@ public:
 
         if(tuh->initial_term->exp != nullptr)
             arg1 = parse_expression(instructions, tuh->initial_term->exp);
+        else if (tuh->initial_term->des != nullptr && !tuh->initial_term->des->exp.empty())
+            return make_array(instructions, tuh->initial_term->des);
         else
-            arg1 = new argument(tuh->initial_term);
+            arg1 = tuh->initial_term->des != nullptr && is_array(tuh->initial_term->des->ident) ?
+                    new argument(tuh->initial_term->des->ident, argument::ADDR):
+                    new argument(tuh->initial_term);
         if(tuh->optional_term != nullptr)
             arg2 = parse_term(instructions, tuh->optional_term);
 
@@ -355,12 +404,88 @@ public:
 
         return new argument(tuh->initial_term);
     }
+    argument * make_array(std::vector<instruction> &instructions, designator * local_des){
 
-    /** PASSES! */
+        //compute expression of first in array
+        argument * result = parse_expression(instructions, local_des->exp.front());
+
+        //specifier
+        int specifier_inst = static_cast<int>(++instruction::instruction_counter);
+        instructions.emplace_back(instruction::instruction_counter,
+                                  IR_MNEMONIC::MUL,
+                                  *result,
+                                  new argument(4, argument::ARG_TYPE::CONST));
+
+        //offsets
+        for(int i = 1; i < local_des->exp.size(); i++){
+            int dim_size = get_dimension_size(local_des, i);
+            instructions.emplace_back(++instruction::instruction_counter,
+                                      IR_MNEMONIC::MUL,
+                                      new argument(dim_size, argument::ARG_TYPE::CONST), //size of dimension
+                                      new argument(4, argument::ARG_TYPE::CONST)); //int size
+
+            argument * temp = parse_expression(instructions, local_des->exp.at(i));
+            instructions.emplace_back(instruction::instruction_counter + 1,
+                                      IR_MNEMONIC::MUL,
+                                      new argument((int)instruction::instruction_counter, argument::ARG_TYPE::INSTRUCT),
+                                      *temp); //int size
+            instruction::instruction_counter++;
+        }
+
+        //adding specifier and offsets (if applicable)
+        if(local_des->exp.size() > 1){
+            instructions.emplace_back(instruction::instruction_counter + 1,
+                                      IR_MNEMONIC::ADD,
+                                      new argument((int)instruction::instruction_counter, argument::ARG_TYPE::INSTRUCT),
+                                      new argument(specifier_inst, argument::ARG_TYPE::INSTRUCT)); //int size
+            instruction::instruction_counter++;
+        }
+
+        //the ADD instruction
+        instructions.emplace_back(instruction::instruction_counter + 1,
+                                  IR_MNEMONIC::ADDA,
+                                  new argument(local_des->ident, argument::ARG_TYPE::ADDR),
+                                  new argument((int)instruction::instruction_counter, argument::ARG_TYPE::INSTRUCT));
+        instruction::instruction_counter++;
+
+        return new argument((int)instruction::instruction_counter, argument::ARG_TYPE::INSTRUCT);
+    }
+
+    bool is_array(const std::string &var){
+
+        bool _is = false;
+
+        //terrible programming, i know. I'm on a deadline though.
+
+        for(auto v : dynamic_cast<main_block *>(AST_start)->variables)
+            for(const auto &ident : v->idents)
+                if(ident == var)
+                    return v->is_array;
+
+        //function variables
+        for(auto &func : dynamic_cast<main_block *>(AST_start)->functions)
+            for(auto ident : func->variables)
+                for(const auto &v : ident->idents)
+                    if(v == var)
+                        return ident->is_array;
+
+        return _is;
+    }
+
+    int get_dimension_size(designator *des, int dim_index){
+        //getting dimension size
+        auto main_block = dynamic_cast<class main_block *>(AST_start);
+
+        for(auto &e : main_block->variables){
+            auto element = std::find(e->idents.begin(), e->idents.end(), des->ident);
+            if(element != e->idents.end())
+                return e->numbers.at(dim_index);
+        }
+    }
 
     void ssa(){
-        //pass IR_start through SSA static calls
-        SSA::ssa(IR_start, version_table);
+        SSA::ssa_add_phis(IR_start, functions, version_table);
+        SSA::ssa_remove_phis(IR_start, functions, version_table);
     }
 
 };

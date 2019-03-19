@@ -73,18 +73,54 @@ class SSA{
 public:
 
     //every ssa pass update this variable
-    static void ssa(basic_block * IR_start, std::unordered_map<std::string, int> version_table){
+    static void ssa_add_phis(basic_block * IR_start, std::vector<basic_block *> functions, std::unordered_map<std::string, int> version_table){
         variable_version_table = std::move(version_table);
 
+        //adding
         visited.clear();
-        auto join_stack = std::stack<join_block *>();
         phi_versioning(IR_start, variable_version_table);
+        for(auto &f : functions)
+            phi_versioning(f, variable_version_table);
+    }
+
+    static void ssa_remove_phis(basic_block * IR_start, std::vector<basic_block *> functions, std::unordered_map<std::string, int> version_table){
+        phi_removal(ending);
     }
 
 private:
 
+    /** REMOVING PHI FUNCTIONS */
+
+    static void phi_removal(basic_block * block){
+
+        if(block->father != nullptr && block->mother != nullptr){
+
+        }
+
+//        //if initial is nullptr, then we hit a while loop block
+//        if(initial == nullptr){
+//        }
+
+        //check if we're the head of a while loop, combine v_table with new versions and carry on
+
+        if(block->mother != nullptr && block->mother != block->ending){
+        }
+
+        //next block in sequence
+        if(block->ending != nullptr){
+        }
+
+
+
+
+    }
+
+
+    /** ADDING PHI FUNCTIONS */
+
     static std::vector<unsigned long> visited;
     static table variable_version_table;
+    static basic_block * ending;
 
     static table * phi_versioning(basic_block *block, table v_table){
 
@@ -141,6 +177,7 @@ private:
 
             delete initial;
             delete alternate;
+            ending = block->ending;
             return phi_versioning(block->ending, combined);
         }
 
@@ -265,5 +302,6 @@ private:
 
 table SSA::variable_version_table;
 std::vector<unsigned long> SSA::visited;
+basic_block * SSA::ending;
 
 #endif //INC_241COMPILER_SSA_HPP

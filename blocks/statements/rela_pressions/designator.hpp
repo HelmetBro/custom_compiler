@@ -17,6 +17,8 @@ class designator {
 
 public:
 
+    bool is_array;
+
     std::string ident;
 
     //optional
