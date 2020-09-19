@@ -8,3 +8,5 @@ Includes both front and back-end code generation. This lexigraphic parser compil
 Take a look at a visual representation of the symbol-by-symbol recursive parser (front end, code -> AST):
 
 ![Front-end parse](https://github.com/HelmetBro/custom_compiler/blob/master/ParserDiagram.png)
+
+While there are no ~beautiful~ graphs like the one above, I urge you to take a look at the Graphviz integration and see it work it's magic. SSA is my favorite part!
